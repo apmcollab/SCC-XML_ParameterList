@@ -1,0 +1,9 @@
+.project
+.cproject
+*.exe
+*.o
+*.a
+_*
+.hg
+.hgignore
+.hgsub
