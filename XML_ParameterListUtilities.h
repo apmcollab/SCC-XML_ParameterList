@@ -135,6 +135,8 @@ void copyParameterList(XML_ParameterListArray& paramListArray,const char* paramL
     for(long k = 0; k < (long)paramListArrayNames.size(); k++)
     {
 
+
+
     if(paramListArrayNames[k].compare(paramList) == 0)
     {
     errorFlag = false;
@@ -149,6 +151,8 @@ void copyParameterList(XML_ParameterListArray& paramListArray,const char* paramL
     it = std::unique(paramNames.begin(), paramNames.end());
     paramNames.resize(it - paramNames.begin());
 
+
+
     for(long j = 0; j < (long)paramNames.size(); j++)
     {
     for(paramInstanceIndex = 0;
@@ -156,22 +160,24 @@ void copyParameterList(XML_ParameterListArray& paramListArray,const char* paramL
     paramInstanceIndex++)
     {
 
+
     paramChildNames.clear();
     paramListArray.getParameterChildNames(paramInstanceIndex, paramNames[j].c_str(),  paramListArrayNames[k].c_str(), paramChildNames);
     if(paramChildNames.size() == 0)
     {
-    outputList.addParameter(paramListArray.getParameterValue(paramNames[j].c_str(),paramListArrayNames[k].c_str()),
+
+    outputList.addParameter(paramListArray.getParameterInstanceValue(paramInstanceIndex,paramNames[j].c_str(),paramListArrayNames[k].c_str()),
                             paramNames[j].c_str(), paramListArrayNames[k].c_str());
     }
     else // add parameter and child parameter values
     {
     outputList.addParameter(paramNames[j].c_str(), paramListArrayNames[k].c_str());
 
-
     // Add parameter value if it is specified
 
     paramListArray.clearAbortOnErrorFlag();
-    XMLvalue = paramListArray.getParameterValue(paramNames[j].c_str(), paramListArrayNames[k].c_str());
+
+    XMLvalue = paramListArray.getParameterInstanceValue(paramInstanceIndex,paramNames[j].c_str(), paramListArrayNames[k].c_str());
     if(not XMLvalue.isNull())
     {outputList.setParameter(XMLvalue,paramNames[j].c_str(), paramListArrayNames[k].c_str());}
     else
