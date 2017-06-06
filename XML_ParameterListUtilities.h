@@ -151,15 +151,12 @@ void copyParameterList(XML_ParameterListArray& paramListArray,const char* paramL
     it = std::unique(paramNames.begin(), paramNames.end());
     paramNames.resize(it - paramNames.begin());
 
-
-
     for(long j = 0; j < (long)paramNames.size(); j++)
     {
     for(paramInstanceIndex = 0;
     paramInstanceIndex < (long)paramListArray.getParameterInstanceCount(paramNames[j].c_str(),paramListArrayNames[k].c_str());
     paramInstanceIndex++)
     {
-
 
     paramChildNames.clear();
     paramListArray.getParameterChildNames(paramInstanceIndex, paramNames[j].c_str(),  paramListArrayNames[k].c_str(), paramChildNames);

@@ -832,7 +832,6 @@ public:
     return defaultValue;
     }
 
-
 	XML_dataType getParameterInstanceChildValue(const char* instanceName,const char* childParameter,
     const char* parameterName, const char* parameterListName)
     {
