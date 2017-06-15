@@ -118,6 +118,12 @@ vector<string>& exclusions,    XML_ParameterListArray& outputList)
 // This routine copies the parameter list from the input XML_ParameterListArray. An
 // error message is generated if the parameter does not exist.
 //
+void copyParameterList(XML_ParameterListArray& paramListArray,const string& paramList, XML_ParameterListArray& outputList)
+{
+copyParameterList(paramListArray,paramList.c_str(),  outputList);
+}
+
+
 void copyParameterList(XML_ParameterListArray& paramListArray,const char* paramList, XML_ParameterListArray& outputList)
 {
     bool errorFlag = true;
@@ -245,6 +251,11 @@ void assignParameters(XML_ParameterListArray& paramListArray,  XML_ParameterList
 //  An error message is generated if the parameter list, or parameter list parameter,
 //  does not exist in the outputList.
 //
+void assignParameters(XML_ParameterListArray& paramListArray,const string& paramList, XML_ParameterListArray& outputList)
+{
+    assignParameters(paramListArray,paramList.c_str(), outputList);
+}
+
 void assignParameters(XML_ParameterListArray& paramListArray,const char* paramList, XML_ParameterListArray& outputList)
 {
     bool errorFlag = true;
@@ -344,6 +355,11 @@ void assignParameters(XML_ParameterListArray& paramListArray,const char* paramLi
 // realpath system call on the specified file. If the file does
 // not exist then this routine is a no-op on that file name.
 //
+void insertFullPathNames(XML_ParameterListArray& paramList, const string& parameterChildName, const string& parameterName,const string&  parameterListName)
+{
+	insertFullPathNames(paramList,parameterChildName.c_str(), parameterName.c_str(), parameterListName.c_str());
+}
+
 void insertFullPathNames(XML_ParameterListArray& paramList,
 const char* parameterChildName, const char* parameterName,
 const char*  parameterListName)
@@ -383,6 +399,12 @@ const char*  parameterListName)
 // value is a file, this routine replaces that file name with a full
 // path file name whose base path is specified.
 //
+void insertFullPathNames(const string& basePath, XML_ParameterListArray& paramList,
+const string& parameterChildName, const string& parameterName, const string&  parameterListName)
+{
+insertFullPathNames(basePath.c_str(), paramList, parameterChildName.c_str(), parameterName.c_str(), parameterListName.c_str());
+}
+
 void insertFullPathNames(const char* basePath, XML_ParameterListArray& paramList,
 const char* parameterChildName, const char* parameterName,
 const char*  parameterListName)

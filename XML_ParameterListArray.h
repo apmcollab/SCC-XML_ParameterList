@@ -485,6 +485,11 @@ public:
     }
 
 
+    void setParameterOrIgnore(XML_dataType value, const string& parameterName, string& parameterListName)
+    {
+        setParameterOrIgnore(value,  parameterName.c_str(), parameterListName.c_str());
+    }
+
     void setParameterOrIgnore(XML_dataType value, const char* parameterName, const char* parameterListName)
     {
     	if(this->isParameter(parameterName, parameterListName))
@@ -494,6 +499,13 @@ public:
     	}
     	return;
     }
+
+
+    void setParameter(XML_dataType value, const string& parameterName, const string& parameterListName)
+    {
+    setParameter(value, parameterName.c_str(), parameterListName.c_str());
+    }
+
 
     void setParameter(XML_dataType value, const char* parameterName, const char* parameterListName)
     {
@@ -561,6 +573,10 @@ public:
     }
     }
 
+    void setParameterType(const string& typeValue, const string& parameterName, const string& parameterListName)
+    {
+    setParameterType(typeValue.c_str(),parameterName.c_str(), parameterListName.c_str());
+    }
 
     void setParameterType(const char* typeValue, const char* parameterName, const char* parameterListName)
     {
@@ -586,6 +602,13 @@ public:
 
     {parameterElement->SetAttribute("type",typeValue);}
     }
+
+    void setParameterChildValue(XML_dataType value,const string& childParameter,
+    const string& parameterName, const string& parameterListName)
+    {
+    setParameterChildValue(value,childParameter.c_str(), parameterName.c_str(), parameterListName.c_str());
+    }
+
 
     void setParameterChildValue(XML_dataType value,const char* childParameter,
     const char* parameterName, const char* parameterListName)
@@ -677,6 +700,12 @@ public:
     if(abortOnErrorFlag){checkErrorAndAbort();}
     }
 
+    void setParameterInstanceChildValue(XML_dataType value,int instanceIndex,const string& childParameter,
+    const string& parameterName, const string& parameterListName)
+    {
+    setParameterInstanceChildValue(value,instanceIndex,childParameter.c_str(),parameterName.c_str(), parameterListName.c_str());
+    }
+
 
     void setParameterInstanceChildValue(XML_dataType value,int instanceIndex,const char* childParameter,
     const char* parameterName, const char* parameterListName)
@@ -764,6 +793,13 @@ public:
 	}
 	if(abortOnErrorFlag){checkErrorAndAbort();}
 	}
+
+
+	void setParameterInstanceChildValue(XML_dataType value,const string& instanceName,const string& childParameter,
+    const string& parameterName, const string& parameterListName)
+    {
+    setParameterInstanceChildValue(value,instanceName.c_str(),childParameter.c_str(), parameterName.c_str(), parameterListName.c_str());
+    }
 
 
 	void setParameterInstanceChildValue(XML_dataType value,const char* instanceName,const char* childParameter,
@@ -879,8 +915,7 @@ public:
     errorMessage.append(indexString);
     errorMessage.append("\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
     errorMessage.append("\n");
-			}
-
+    }
 
 	if(abortOnErrorFlag){checkErrorAndAbort();}
 	}
@@ -1134,6 +1169,10 @@ public:
     return count;
 	}
 
+    long parameterListInstanceCount(const string& parameterListName) const
+    {
+    return parameterListInstanceCount(parameterListName.c_str());
+    }
 
     long parameterListInstanceCount(const char* parameterListName) const
 	{
@@ -1371,6 +1410,11 @@ public:
 	//
 	// Indexing of the instance starts at 0 to facilitate extracting data into C type arrays
 	//
+    XML_dataType getParameterInstanceValue(int instanceIndex,const string& parameterName, const string& parameterListName)
+	{
+	return getParameterInstanceValue(instanceIndex, parameterName.c_str(), parameterListName.c_str());
+	}
+
 	XML_dataType getParameterInstanceValue(int instanceIndex,const char* parameterName, const char* parameterListName)
 	{
     XML_dataType returnValue;
@@ -1502,6 +1546,13 @@ public:
 	if(abortOnErrorFlag){checkErrorAndAbort();}
 	return returnValue;
 	}
+
+
+    bool isParameterInstanceChildValue(int instanceIndex,const string& childParameter,
+    const string& parameterName, const string& parameterListName) const
+    {
+    return isParameterInstanceChildValue(instanceIndex,childParameter.c_str(), parameterName.c_str(), parameterListName.c_str());
+    }
 
 
     bool isParameterInstanceChildValue(int instanceIndex,const char* childParameter,
@@ -1647,6 +1698,13 @@ public:
 	return returnValue;
 	}
 
+
+	XML_dataType getParameterValue(const TiXmlElement* parameter,const string& parameterName, const string& parameterListName)
+	{
+	return 	getParameterValue(parameter,parameterName.c_str(), parameterListName.c_str());
+	}
+
+
 	XML_dataType getParameterValue(const TiXmlElement* parameter,const char* parameterName, const char* parameterListName)
 	{
 	int           intParam;
@@ -1771,6 +1829,11 @@ public:
 // Case independent versions of {true,yes} and {false,no}
 // are returned as type bool
 //
+const char* getDataType(const string& sIn)
+{
+return  getDataType(sIn.c_str());
+}
+
 const char* getDataType(const char* sIn)
 {
     //
