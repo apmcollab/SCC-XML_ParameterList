@@ -1,5 +1,7 @@
 #include "XML_dataType.h"
 #include <sstream>
+#include <string>
+using namespace std;
 //
 //******************************************************************************
 //                      XML_DataType.cpp
@@ -690,6 +692,22 @@ bool XML_dataType::isString()
 {
 	if(type_name == TYPE_STRING) return true;
 	return false;
+}
+
+std::string XML_dataType::getTypeAsString() const
+{
+     std::string sReturn;
+
+     switch(this->type_name)
+     {
+     case TYPE_BOOL     : sReturn =  "bool";        break;
+     case TYPE_INT      : sReturn =  "int";         break;
+     case TYPE_LONG     : sReturn =  "long";        break;
+     case TYPE_FLOAT    : sReturn =  "float";       break;
+     case TYPE_DOUBLE   : sReturn =  "double";      break;
+     case TYPE_STRING   : sReturn =  "std::string"; break;
+     }
+     return sReturn;
 }
 //
 //******************************************************************************

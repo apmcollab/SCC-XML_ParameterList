@@ -98,13 +98,15 @@ public :
 //  Utility for output
 //
     string toString();
+
 //
 //  Typing mutatators
 //
 
-    bool  isString();
-    void  setType(int XML_dataTypeType);
-    int   getType();
+    bool   isString();
+    void   setType(int XML_dataTypeType);
+    int    getType();
+    string getTypeAsString() const;
 
     int isNull(){if(getType() == TYPE_NULL){return 1;} return 0;}
 //

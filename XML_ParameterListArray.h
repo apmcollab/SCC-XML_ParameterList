@@ -66,6 +66,14 @@ public:
 		initialize(P);
 	}
 
+
+    XML_ParameterListArray(const string& fileName)
+    {
+        parameterArrayDocPtr = 0;
+		abortOnErrorFlag     = true;
+		initialize(fileName.c_str());
+    }
+
 	XML_ParameterListArray(const char* fileName)
 	{
 		parameterArrayDocPtr = 0;
@@ -78,6 +86,26 @@ public:
 	destroyData();
 	}
 
+	bool isNull()
+	{
+	if(parameterArrayDocPtr == 0) return true;
+	return false;
+	}
+
+	void abortIfNull()
+	{
+	if(isNull())
+	{
+	    errorFlag = true;
+	    errorMessage.append("XXX XML_ParameterListArray programming error. XXXX \n");
+		errorMessage.append("XML_ParameterListArray is not properly initialized.\n");
+		errorMessage.append("Use createParameterListArray(*) to initialize.\n");
+		errorMessage.append("XXX Program Terminated XXX");
+		errorMessage.append("\n");
+	}
+	checkErrorAndAbort();
+	}
+
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -87,6 +115,11 @@ public:
 // To Do : Add parameter range checks. Write up documentation
 //
 ////////////////////////////////////////////////////////////////////////
+
+    void createParameterListArray(const string& listArrayName)
+    {
+       createParameterListArray(listArrayName.c_str());
+    }
 
     void createParameterListArray(const char* listArrayName)
     {
@@ -132,8 +165,14 @@ public:
     // Check to make sure parameterListName doesn't exist more than once
     //
 
+    void addParameterList(const string& parameterListName)
+    {
+    addParameterList(parameterListName.c_str());
+    }
+
     void addParameterList(const char* parameterListName)
     {
+    abortIfNull();
     if(parameterListInstanceCount(parameterListName) != 0)
     {
     errorFlag = true;
@@ -156,9 +195,14 @@ public:
     }
 
 
+    void addParameter(const string&  parameterName, const string& parameterListName)
+    {
+    addParameter(parameterName.c_str(), parameterListName.c_str());
+    }
+
     void addParameter(const char* parameterName, const char* parameterListName)
     {
-
+    abortIfNull();
     if(isParameterList(parameterListName) == 0)
     {
     errorFlag = true;
@@ -180,9 +224,14 @@ public:
     }
 
 
+    void addParameterNoTypeSpec(const string& value, const string& parameterName, const string& parameterListName)
+    {
+    addParameterNoTypeSpec(value.c_str(),parameterName.c_str(), parameterListName.c_str());
+    }
+
     void addParameterNoTypeSpec(const char* value, const char* parameterName, const char* parameterListName)
     {
-
+    abortIfNull();
     if(isParameterList(parameterListName) == 0)
     {
     errorFlag = true;
@@ -206,10 +255,15 @@ public:
     }
 
 
+    void addParameter(XML_dataType value, const string& parameterName, const string& parameterListName)
+    {
+        addParameter(value, parameterName.c_str(), parameterListName.c_str());
+    }
+
 
     void addParameter(XML_dataType value, const char* parameterName, const char* parameterListName)
     {
-
+    abortIfNull();
     if(isParameterList(parameterListName) == 0)
     {
     errorFlag = true;
@@ -235,9 +289,14 @@ public:
     {parameterElement->SetAttribute("type",getDataType(value.toString().c_str()));}
     }
 
+    void addParameterChild(const string& parameterChildName, const string& parameterName, const string& parameterListName)
+    {
+        addParameterChild(parameterChildName.c_str(),parameterName.c_str(), parameterListName.c_str());
+    }
+
     void addParameterChild(const char* parameterChildName, const char* parameterName, const char* parameterListName)
     {
-
+    abortIfNull();
     if(isParameterList(parameterListName) == 0)
     {
     errorFlag = true;
@@ -272,13 +331,16 @@ public:
     parameter->LinkEndChild( parameterChild );
     }
 
-    //
-    // check to make sure parameterList and parameter exist
-    //
+    void addParameterChild(XML_dataType value, const string& parameterChildName,
+    const string& parameterName, const string& parameterListName)
+    {
+    addParameterChild(value, parameterChildName.c_str(),parameterName.c_str(), parameterListName.c_str());
+    }
 
     void addParameterChild(XML_dataType value, const char* parameterChildName,
     const char* parameterName, const char* parameterListName)
     {
+    abortIfNull();
     if(isParameterList(parameterListName) == 0)
     {
     errorFlag = true;
@@ -322,9 +384,16 @@ public:
     }
 
 
+    void addParameterChildNoTypeSpec(XML_dataType value, const string& parameterChildName,
+    const string& parameterName, const string& parameterListName)
+    {
+    addParameterChildNoTypeSpec(value,parameterChildName.c_str(),parameterName.c_str(), parameterListName.c_str());
+    }
+
     void addParameterChildNoTypeSpec(XML_dataType value, const char* parameterChildName,
     const char* parameterName, const char* parameterListName)
     {
+    abortIfNull();
     if(isParameterList(parameterListName) == 0)
     {
     errorFlag = true;
@@ -364,11 +433,16 @@ public:
     }
 
 
+    void addParameterInstanceChild(XML_dataType value, int instanceIndex, const string& parameterChildName,
+    const string& parameterName, const string& parameterListName)
+    {
+    addParameterInstanceChild(value, instanceIndex,  parameterChildName.c_str(), parameterName.c_str(),parameterListName.c_str());
+    }
 
     void addParameterInstanceChild(XML_dataType value, int instanceIndex, const char* parameterChildName,
     const char* parameterName, const char* parameterListName)
     {
-
+    abortIfNull();
     if(isParameter(parameterName,parameterListName) == 0)
     {
     errorFlag = true;
@@ -812,6 +886,12 @@ public:
 	}
 
 
+	XML_dataType getParameterChildValueOrDefault(const string& childParameter,
+    const string&  parameterName, const string&  parameterListName,XML_dataType defaultValue)
+    {
+    return getParameterChildValueOrDefault(childParameter.c_str(), parameterName.c_str(), parameterListName.c_str(),defaultValue);
+    }
+
 	XML_dataType getParameterChildValueOrDefault(const char* childParameter,
     const char* parameterName, const char* parameterListName,XML_dataType defaultValue)
     {
@@ -822,6 +902,14 @@ public:
     return defaultValue;
     }
 
+
+	XML_dataType getParameterInstanceChildValueOrDefault(int instanceIndex,const string& childParameter,
+    const string&  parameterName, const string&  parameterListName,XML_dataType defaultValue)
+    {
+    return getParameterInstanceChildValueOrDefault(instanceIndex,childParameter.c_str(),
+    parameterName.c_str(),parameterListName.c_str(),defaultValue);
+    }
+
 	XML_dataType getParameterInstanceChildValueOrDefault(int instanceIndex,const char* childParameter,
     const char* parameterName, const char* parameterListName,XML_dataType defaultValue)
     {
@@ -830,6 +918,12 @@ public:
 		return this->getParameterInstanceChildValue(instanceIndex,childParameter,parameterName,parameterListName);
 	}
     return defaultValue;
+    }
+
+	XML_dataType getParameterInstanceChildValue(const string& instanceName,const string& childParameter,
+    const string& parameterName, const string& parameterListName)
+    {
+    return getParameterInstanceChildValue(instanceName.c_str(),childParameter.c_str(),parameterName.c_str(), parameterListName.c_str());
     }
 
 	XML_dataType getParameterInstanceChildValue(const char* instanceName,const char* childParameter,
@@ -962,6 +1056,12 @@ public:
 	}
 
 
+	void getParameterChildNames(long instanceIndex, const string& parameterName, string& parameterListName, vector < string >& paramChildNames) const
+	{
+    getParameterChildNames(instanceIndex, parameterName.c_str(),parameterListName.c_str(), paramChildNames);
+	}
+
+
 	void getParameterChildNames(long instanceIndex, const char* parameterName, const char* parameterListName, vector < string >& paramChildNames) const
 	{
 	paramChildNames.clear();
@@ -993,6 +1093,10 @@ public:
     }
 	}
 
+    void getParameterNames(const string& parameterListName, vector < string >& paramNames) const
+	{
+	getParameterNames(parameterListName.c_str(),paramNames);
+	}
 
     void getParameterNames(const char* parameterListName, vector < string >& paramNames) const
 	{
@@ -1115,6 +1219,11 @@ public:
 	abortOnErrorFlag     = P.abortOnErrorFlag;
 	}
 
+    void initalize(const string& fileName)
+    {
+    initialize(fileName.c_str());
+    }
+
 	void initialize(const char* fileName)
 	{
 		destroyData();
@@ -1200,6 +1309,12 @@ public:
 	errorMessage.clear();
 	}
 
+
+    int isParameterList(const string& parameterListName) const
+	{
+	return isParameterList(parameterListName.c_str());
+	}
+
 	int isParameterList(const char* parameterListName) const
 	{
 	if(parameterArrayDocPtr == 0) return 0;
@@ -1207,6 +1322,12 @@ public:
 	TiXmlElement* parameterList = docHandle.FirstChild(parameterListName).ToElement();
 	if(parameterList) {return 1;}
 	return 0;
+	}
+
+
+	int isParameter(const string& parameterName, const string& parameterListName) const
+	{
+		return isParameter(parameterName.c_str(),parameterListName.c_str());
 	}
 
 	int isParameter(const char* parameterName, const char* parameterListName) const
@@ -1220,6 +1341,12 @@ public:
 	if(parameter) {return 1;}
 	return 0;
 	}
+
+
+    long getParameterInstanceCount(const string& parameterName, const string& parameterListName)
+    {
+    return getParameterInstanceCount(parameterName.c_str(),parameterListName.c_str());
+    }
 
 	long getParameterInstanceCount(const char* parameterName, const char* parameterListName)
 	{
@@ -1302,6 +1429,12 @@ public:
 	//
 	// Indexing of the instance starts at 0 to facilitate extracting data into C type arrays
     //
+
+    XML_dataType getParameterInstanceChildValue(int instanceIndex,const string& childParameter,
+			const string& parameterName, const string& parameterListName)
+    {
+    return getParameterInstanceChildValue(instanceIndex,childParameter.c_str(),parameterName.c_str(),parameterListName.c_str());
+    }
 
 	XML_dataType getParameterInstanceChildValue(int instanceIndex,const char* childParameter,
 			const char* parameterName, const char* parameterListName)
@@ -1402,6 +1535,11 @@ public:
     return false;
 	}
 
+    XML_dataType getParameterChildValue(const string& childParameter, const string& parameterName, const string& parameterListName)
+	{
+	return getParameterChildValue(childParameter.c_str(), parameterName.c_str(), parameterListName.c_str());
+	}
+
     XML_dataType getParameterChildValue(const char* childParameter, const char* parameterName, const char* parameterListName)
 	{
     XML_dataType returnValue;
@@ -1441,6 +1579,11 @@ public:
    // If the specified parameter exists, then this routine returns the value, otherwise it returns the
    // defaultValue specified.
    //
+   XML_dataType getParameterValueOrDefault(const string& parameterName, const string& parameterListName, XML_dataType defaultValue )
+   {
+   return getParameterValueOrDefault(parameterName.c_str(), parameterListName.c_str(),defaultValue);
+   }
+
    XML_dataType getParameterValueOrDefault(const char* parameterName, const char* parameterListName, XML_dataType defaultValue )
    {
 
@@ -1456,6 +1599,11 @@ public:
 	// string boolAsString = paramList.getParameterValue(...).toString();
 	//
 
+
+	XML_dataType getParameterValue(const string& parameterName, string& parameterListName)
+	{
+	return getParameterValue(parameterName.c_str(),parameterListName.c_str());
+	}
 
 	XML_dataType getParameterValue(const char* parameterName, const char* parameterListName)
 	{
@@ -1609,6 +1757,9 @@ public:
 
 	return XML_dataType();
 	}
+
+
+
 
 
 
