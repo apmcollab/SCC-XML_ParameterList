@@ -118,13 +118,13 @@ vector<string>& exclusions,    XML_ParameterListArray& outputList)
 // This routine copies the parameter list from the input XML_ParameterListArray. An
 // error message is generated if the parameter does not exist.
 //
-void copyParameterList(XML_ParameterListArray& paramListArray,const string& paramList, XML_ParameterListArray& outputList)
+void copyParameterList(const XML_ParameterListArray& paramListArray,const string& paramList, XML_ParameterListArray& outputList)
 {
 copyParameterList(paramListArray,paramList.c_str(),  outputList);
 }
 
 
-void copyParameterList(XML_ParameterListArray& paramListArray,const char* paramList, XML_ParameterListArray& outputList)
+void copyParameterList(const XML_ParameterListArray& paramListArray,const char* paramList, XML_ParameterListArray& outputList)
 {
     bool errorFlag = true;
 

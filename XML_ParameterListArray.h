@@ -1344,16 +1344,26 @@ public:
     }
 	}
 
-	void        setAbortOnErrorFlag(){abortOnErrorFlag   = true;}
-	void        clearAbortOnErrorFlag(){abortOnErrorFlag = false;}
-	bool        getErrorFlag()  const {return errorFlag;}
+	void setAbortOnErrorFlag()  const
+	{
+	XML_ParameterListArray* Eptr =  const_cast<XML_ParameterListArray*> (this);
+	Eptr->abortOnErrorFlag       = true;
+	}
+	void  clearAbortOnErrorFlag() const
+	{
+	XML_ParameterListArray* Eptr =  const_cast<XML_ParameterListArray*> (this);
+	Eptr-> abortOnErrorFlag = false;
+	}
+
+	bool        getErrorFlag()    const {return errorFlag;}
 	const char* getErrorMessage() const {return errorMessage.c_str();}
 
 
-	void clearError()
+	void clearError() const
 	{
-	errorFlag = false;
-	errorMessage.clear();
+	XML_ParameterListArray* Eptr =  const_cast<XML_ParameterListArray*> (this);
+	Eptr->errorFlag = false;
+	Eptr->errorMessage.clear();
 	}
 
 
@@ -1390,12 +1400,12 @@ public:
 	}
 
 
-    long getParameterInstanceCount(const string& parameterName, const string& parameterListName)
+    long getParameterInstanceCount(const string& parameterName, const string& parameterListName) const
     {
     return getParameterInstanceCount(parameterName.c_str(),parameterListName.c_str());
     }
 
-	long getParameterInstanceCount(const char* parameterName, const char* parameterListName)
+	long getParameterInstanceCount(const char* parameterName, const char* parameterListName) const
 	{
     if(isParameterList(parameterListName) == 0) {return 0;}
 
