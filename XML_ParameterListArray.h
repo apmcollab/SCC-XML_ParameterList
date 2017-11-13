@@ -66,6 +66,14 @@ public:
 		initialize(P);
 	}
 
+
+    XML_ParameterListArray(const string& fileName)
+    {
+        parameterArrayDocPtr = 0;
+		abortOnErrorFlag     = true;
+		initialize(fileName.c_str());
+    }
+
 	XML_ParameterListArray(const char* fileName)
 	{
 		parameterArrayDocPtr = 0;
@@ -78,6 +86,28 @@ public:
 	destroyData();
 	}
 
+	bool isNull() const
+	{
+	if(parameterArrayDocPtr == 0) return true;
+	return false;
+	}
+
+	void abortIfNull() const
+	{
+    XML_ParameterListArray* Eptr =  const_cast<XML_ParameterListArray*> (this);
+
+	if(isNull())
+	{
+	    Eptr->errorFlag = true;
+	    Eptr->errorMessage.append("XXX XML_ParameterListArray programming error. XXXX \n");
+		Eptr->errorMessage.append("XML_ParameterListArray is not properly initialized.\n");
+		Eptr->errorMessage.append("Use createParameterListArray(*) to initialize.\n");
+		Eptr->errorMessage.append("XXX Program Terminated XXX");
+		Eptr->errorMessage.append("\n");
+	}
+	checkErrorAndAbort();
+	}
+
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -87,6 +117,11 @@ public:
 // To Do : Add parameter range checks. Write up documentation
 //
 ////////////////////////////////////////////////////////////////////////
+
+    void createParameterListArray(const string& listArrayName)
+    {
+       createParameterListArray(listArrayName.c_str());
+    }
 
     void createParameterListArray(const char* listArrayName)
     {
@@ -113,7 +148,7 @@ public:
 	abortOnErrorFlag     =  true;
     }
 
-    const char* getParameterListArrayName()
+    const char* getParameterListArrayName() const
     {
     TiXmlHandle  docHandle(parameterArrayDocPtr->RootElement());
 	TiXmlElement* root = docHandle.ToElement();
@@ -132,8 +167,14 @@ public:
     // Check to make sure parameterListName doesn't exist more than once
     //
 
+    void addParameterList(const string& parameterListName)
+    {
+    addParameterList(parameterListName.c_str());
+    }
+
     void addParameterList(const char* parameterListName)
     {
+    abortIfNull();
     if(parameterListInstanceCount(parameterListName) != 0)
     {
     errorFlag = true;
@@ -156,9 +197,14 @@ public:
     }
 
 
+    void addParameter(const string&  parameterName, const string& parameterListName)
+    {
+    addParameter(parameterName.c_str(), parameterListName.c_str());
+    }
+
     void addParameter(const char* parameterName, const char* parameterListName)
     {
-
+    abortIfNull();
     if(isParameterList(parameterListName) == 0)
     {
     errorFlag = true;
@@ -180,9 +226,14 @@ public:
     }
 
 
+    void addParameterNoTypeSpec(const string& value, const string& parameterName, const string& parameterListName)
+    {
+    addParameterNoTypeSpec(value.c_str(),parameterName.c_str(), parameterListName.c_str());
+    }
+
     void addParameterNoTypeSpec(const char* value, const char* parameterName, const char* parameterListName)
     {
-
+    abortIfNull();
     if(isParameterList(parameterListName) == 0)
     {
     errorFlag = true;
@@ -206,10 +257,15 @@ public:
     }
 
 
+    void addParameter(XML_dataType value, const string& parameterName, const string& parameterListName)
+    {
+        addParameter(value, parameterName.c_str(), parameterListName.c_str());
+    }
+
 
     void addParameter(XML_dataType value, const char* parameterName, const char* parameterListName)
     {
-
+    abortIfNull();
     if(isParameterList(parameterListName) == 0)
     {
     errorFlag = true;
@@ -235,9 +291,14 @@ public:
     {parameterElement->SetAttribute("type",getDataType(value.toString().c_str()));}
     }
 
+    void addParameterChild(const string& parameterChildName, const string& parameterName, const string& parameterListName)
+    {
+        addParameterChild(parameterChildName.c_str(),parameterName.c_str(), parameterListName.c_str());
+    }
+
     void addParameterChild(const char* parameterChildName, const char* parameterName, const char* parameterListName)
     {
-
+    abortIfNull();
     if(isParameterList(parameterListName) == 0)
     {
     errorFlag = true;
@@ -272,13 +333,16 @@ public:
     parameter->LinkEndChild( parameterChild );
     }
 
-    //
-    // check to make sure parameterList and parameter exist
-    //
+    void addParameterChild(XML_dataType value, const string& parameterChildName,
+    const string& parameterName, const string& parameterListName)
+    {
+    addParameterChild(value, parameterChildName.c_str(),parameterName.c_str(), parameterListName.c_str());
+    }
 
     void addParameterChild(XML_dataType value, const char* parameterChildName,
     const char* parameterName, const char* parameterListName)
     {
+    abortIfNull();
     if(isParameterList(parameterListName) == 0)
     {
     errorFlag = true;
@@ -322,9 +386,16 @@ public:
     }
 
 
+    void addParameterChildNoTypeSpec(XML_dataType value, const string& parameterChildName,
+    const string& parameterName, const string& parameterListName)
+    {
+    addParameterChildNoTypeSpec(value,parameterChildName.c_str(),parameterName.c_str(), parameterListName.c_str());
+    }
+
     void addParameterChildNoTypeSpec(XML_dataType value, const char* parameterChildName,
     const char* parameterName, const char* parameterListName)
     {
+    abortIfNull();
     if(isParameterList(parameterListName) == 0)
     {
     errorFlag = true;
@@ -364,11 +435,16 @@ public:
     }
 
 
+    void addParameterInstanceChild(XML_dataType value, int instanceIndex, const string& parameterChildName,
+    const string& parameterName, const string& parameterListName)
+    {
+    addParameterInstanceChild(value, instanceIndex,  parameterChildName.c_str(), parameterName.c_str(),parameterListName.c_str());
+    }
 
     void addParameterInstanceChild(XML_dataType value, int instanceIndex, const char* parameterChildName,
     const char* parameterName, const char* parameterListName)
     {
-
+    abortIfNull();
     if(isParameter(parameterName,parameterListName) == 0)
     {
     errorFlag = true;
@@ -411,6 +487,11 @@ public:
     }
 
 
+    void setParameterOrIgnore(XML_dataType value, const string& parameterName, string& parameterListName)
+    {
+        setParameterOrIgnore(value,  parameterName.c_str(), parameterListName.c_str());
+    }
+
     void setParameterOrIgnore(XML_dataType value, const char* parameterName, const char* parameterListName)
     {
     	if(this->isParameter(parameterName, parameterListName))
@@ -420,6 +501,13 @@ public:
     	}
     	return;
     }
+
+
+    void setParameter(XML_dataType value, const string& parameterName, const string& parameterListName)
+    {
+    setParameter(value, parameterName.c_str(), parameterListName.c_str());
+    }
+
 
     void setParameter(XML_dataType value, const char* parameterName, const char* parameterListName)
     {
@@ -487,6 +575,10 @@ public:
     }
     }
 
+    void setParameterType(const string& typeValue, const string& parameterName, const string& parameterListName)
+    {
+    setParameterType(typeValue.c_str(),parameterName.c_str(), parameterListName.c_str());
+    }
 
     void setParameterType(const char* typeValue, const char* parameterName, const char* parameterListName)
     {
@@ -512,6 +604,13 @@ public:
 
     {parameterElement->SetAttribute("type",typeValue);}
     }
+
+    void setParameterChildValue(XML_dataType value,const string& childParameter,
+    const string& parameterName, const string& parameterListName)
+    {
+    setParameterChildValue(value,childParameter.c_str(), parameterName.c_str(), parameterListName.c_str());
+    }
+
 
     void setParameterChildValue(XML_dataType value,const char* childParameter,
     const char* parameterName, const char* parameterListName)
@@ -603,6 +702,12 @@ public:
     if(abortOnErrorFlag){checkErrorAndAbort();}
     }
 
+    void setParameterInstanceChildValue(XML_dataType value,int instanceIndex,const string& childParameter,
+    const string& parameterName, const string& parameterListName)
+    {
+    setParameterInstanceChildValue(value,instanceIndex,childParameter.c_str(),parameterName.c_str(), parameterListName.c_str());
+    }
+
 
     void setParameterInstanceChildValue(XML_dataType value,int instanceIndex,const char* childParameter,
     const char* parameterName, const char* parameterListName)
@@ -690,6 +795,13 @@ public:
 	}
 	if(abortOnErrorFlag){checkErrorAndAbort();}
 	}
+
+
+	void setParameterInstanceChildValue(XML_dataType value,const string& instanceName,const string& childParameter,
+    const string& parameterName, const string& parameterListName)
+    {
+    setParameterInstanceChildValue(value,instanceName.c_str(),childParameter.c_str(), parameterName.c_str(), parameterListName.c_str());
+    }
 
 
 	void setParameterInstanceChildValue(XML_dataType value,const char* instanceName,const char* childParameter,
@@ -805,15 +917,20 @@ public:
     errorMessage.append(indexString);
     errorMessage.append("\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
     errorMessage.append("\n");
-			}
-
+    }
 
 	if(abortOnErrorFlag){checkErrorAndAbort();}
 	}
 
 
+	XML_dataType getParameterChildValueOrDefault(const string& childParameter,
+    const string&  parameterName, const string&  parameterListName,XML_dataType defaultValue) const
+    {
+    return getParameterChildValueOrDefault(childParameter.c_str(), parameterName.c_str(), parameterListName.c_str(),defaultValue);
+    }
+
 	XML_dataType getParameterChildValueOrDefault(const char* childParameter,
-    const char* parameterName, const char* parameterListName,XML_dataType defaultValue)
+    const char* parameterName, const char* parameterListName,XML_dataType defaultValue) const
     {
 	if(this->isParameterInstanceChildValue(0,childParameter,parameterName,parameterListName))
 	{
@@ -822,8 +939,16 @@ public:
     return defaultValue;
     }
 
+
+	XML_dataType getParameterInstanceChildValueOrDefault(int instanceIndex,const string& childParameter,
+    const string&  parameterName, const string&  parameterListName,XML_dataType defaultValue) const
+    {
+    return getParameterInstanceChildValueOrDefault(instanceIndex,childParameter.c_str(),
+    parameterName.c_str(),parameterListName.c_str(),defaultValue);
+    }
+
 	XML_dataType getParameterInstanceChildValueOrDefault(int instanceIndex,const char* childParameter,
-    const char* parameterName, const char* parameterListName,XML_dataType defaultValue)
+    const char* parameterName, const char* parameterListName,XML_dataType defaultValue) const
     {
 	if(this->isParameterInstanceChildValue(instanceIndex,childParameter,parameterName,parameterListName))
 	{
@@ -832,22 +957,31 @@ public:
     return defaultValue;
     }
 
+	XML_dataType getParameterInstanceChildValue(const string& instanceName,const string& childParameter,
+    const string& parameterName, const string& parameterListName) const
+    {
+    return getParameterInstanceChildValue(instanceName.c_str(),childParameter.c_str(),parameterName.c_str(), parameterListName.c_str());
+    }
 
 	XML_dataType getParameterInstanceChildValue(const char* instanceName,const char* childParameter,
-    const char* parameterName, const char* parameterListName)
+    const char* parameterName, const char* parameterListName) const
     {
     XML_dataType returnValue;
 
+    // Setting error flags require overriding const status
+
+    XML_ParameterListArray* Eptr =  const_cast<XML_ParameterListArray*> (this);
+
     if(not isParameterList(parameterListName))
 	{
-		errorFlag = true;
-		errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
-		errorMessage.append("XML_ParameterListArray Class Error \n");
-		errorMessage.append("Parameter List not specified \n");
-		errorMessage.append("Parameter List requested : ");
-		errorMessage.append(parameterListName);
-		errorMessage.append("\n");
-		errorMessage.append("\n");
+		Eptr->errorFlag = true;
+		Eptr->errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+		Eptr->errorMessage.append("XML_ParameterListArray Class Error \n");
+		Eptr->errorMessage.append("Parameter List not specified \n");
+		Eptr->errorMessage.append("Parameter List requested : ");
+		Eptr->errorMessage.append(parameterListName);
+		Eptr->errorMessage.append("\n");
+		Eptr->errorMessage.append("\n");
 		if(not abortOnErrorFlag) return returnValue;
 	}
 
@@ -855,18 +989,18 @@ public:
 
     if(isParameter(parameterName,parameterListName) == 0)
     {
-    errorFlag = true;
-	errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
-	errorMessage.append("XML_ParameterListArray Class Error \n");
-	errorMessage.append("void setParameterChildValue(XML_dataType value,const char* childParameter,\n");
-    errorMessage.append("const char* parameterName, const char* parameterListName)\n\n");
-	errorMessage.append("Parameter or ParameterList specified do not exist.\n\n");
-	errorMessage.append("Parameter     : ");
-	errorMessage.append(parameterName);
-    errorMessage.append("\nParameterList : ");
-	errorMessage.append(parameterListName);
-	errorMessage.append("\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
-	errorMessage.append("\n");
+    Eptr->errorFlag = true;
+	Eptr->errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+	Eptr->errorMessage.append("XML_ParameterListArray Class Error \n");
+	Eptr->errorMessage.append("void setParameterChildValue(XML_dataType value,const char* childParameter,\n");
+    Eptr->errorMessage.append("const char* parameterName, const char* parameterListName)\n\n");
+	Eptr->errorMessage.append("Parameter or ParameterList specified do not exist.\n\n");
+	Eptr->errorMessage.append("Parameter     : ");
+	Eptr->errorMessage.append(parameterName);
+    Eptr->errorMessage.append("\nParameterList : ");
+	Eptr->errorMessage.append(parameterListName);
+	Eptr->errorMessage.append("\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+	Eptr->errorMessage.append("\n");
 	if(not abortOnErrorFlag) return returnValue;
     }
 
@@ -878,7 +1012,7 @@ public:
 	TiXmlNode* node;
     string instanceString;
     string indexString(instanceName);
-    errorFlag          = true;
+    Eptr->errorFlag          = true;
     bool instanceError = true;
 
 	for( node = parameter->FirstChild(parameterName);
@@ -898,48 +1032,48 @@ public:
 		    }
 		    else
 		    {
-		    errorFlag = true;
+		    Eptr->errorFlag = true;
 		    }
 		    }
 	     }
 	}
 
 
-    errorFlag = true;
+    Eptr->errorFlag = true;
     if(instanceError)
     {
-    errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
-    errorMessage.append("XML_ParameterListArray Class Error \n");
-    errorMessage.append("Parameter instance name specified does not exist.\n\n");
-    errorMessage.append("Parameter List : ");
-	errorMessage.append(parameterListName);
-	errorMessage.append("\n");
-	errorMessage.append("Parameter      : ");
-	errorMessage.append(parameterName);
-	errorMessage.append("\n");
-    errorMessage.append("ParameterChild : ");
-	errorMessage.append(childParameter);
-	errorMessage.append("\n");
-    errorMessage.append("instance name  : ");
-    errorMessage.append(indexString);
-    errorMessage.append("\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
-    errorMessage.append("\n");
+    Eptr->errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+    Eptr->errorMessage.append("XML_ParameterListArray Class Error \n");
+    Eptr->errorMessage.append("Parameter instance name specified does not exist.\n\n");
+    Eptr->errorMessage.append("Parameter List : ");
+	Eptr->errorMessage.append(parameterListName);
+	Eptr->errorMessage.append("\n");
+	Eptr->errorMessage.append("Parameter      : ");
+	Eptr->errorMessage.append(parameterName);
+	Eptr->errorMessage.append("\n");
+    Eptr->errorMessage.append("ParameterChild : ");
+	Eptr->errorMessage.append(childParameter);
+	Eptr->errorMessage.append("\n");
+    Eptr->errorMessage.append("instance name  : ");
+    Eptr->errorMessage.append(indexString);
+    Eptr->errorMessage.append("\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+    Eptr->errorMessage.append("\n");
 	if(abortOnErrorFlag){checkErrorAndAbort();}
 	else return returnValue;
 	}
 
-    errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
-	errorMessage.append("XML_ParameterListArray Class Error \n");
-	errorMessage.append("Parameter Instance Child Parameter Not found.\n");
-	errorMessage.append("Parameter List : ");
-	errorMessage.append(parameterListName);
-	errorMessage.append("\n");
-	errorMessage.append("Parameter      : ");
-	errorMessage.append(parameterName);
-	errorMessage.append("\n");
-    errorMessage.append("ParameterChild : ");
-	errorMessage.append(childParameter);
-	errorMessage.append("\n");
+    Eptr->errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+	Eptr->errorMessage.append("XML_ParameterListArray Class Error \n");
+	Eptr->errorMessage.append("Parameter Instance Child Parameter Not found.\n");
+	Eptr->errorMessage.append("Parameter List : ");
+	Eptr->errorMessage.append(parameterListName);
+	Eptr->errorMessage.append("\n");
+	Eptr->errorMessage.append("Parameter      : ");
+	Eptr->errorMessage.append(parameterName);
+	Eptr->errorMessage.append("\n");
+    Eptr->errorMessage.append("ParameterChild : ");
+	Eptr->errorMessage.append(childParameter);
+	Eptr->errorMessage.append("\n");
 	if(abortOnErrorFlag){checkErrorAndAbort();}
 
 	return returnValue;
@@ -963,7 +1097,15 @@ public:
 	}
 
 
-	void getParameterChildNames(long instanceIndex, const char* parameterName, const char* parameterListName, vector < string >& paramChildNames) const
+	void getParameterChildNames(long instanceIndex, const string& parameterName,
+	string& parameterListName, vector < string >& paramChildNames) const
+	{
+    getParameterChildNames(instanceIndex, parameterName.c_str(),parameterListName.c_str(), paramChildNames);
+	}
+
+
+	void getParameterChildNames(long instanceIndex, const char* parameterName,
+	const char* parameterListName, vector < string >& paramChildNames) const
 	{
 	paramChildNames.clear();
 	if(not isParameter(parameterName, parameterListName)) return;
@@ -994,6 +1136,10 @@ public:
     }
 	}
 
+    void getParameterNames(const string& parameterListName, vector < string >& paramNames) const
+	{
+	getParameterNames(parameterListName.c_str(),paramNames);
+	}
 
     void getParameterNames(const char* parameterListName, vector < string >& paramNames) const
 	{
@@ -1031,6 +1177,10 @@ public:
     return count;
 	}
 
+    long parameterListInstanceCount(const string& parameterListName) const
+    {
+    return parameterListInstanceCount(parameterListName.c_str());
+    }
 
     long parameterListInstanceCount(const char* parameterListName) const
 	{
@@ -1116,6 +1266,11 @@ public:
 	abortOnErrorFlag     = P.abortOnErrorFlag;
 	}
 
+    void initalize(const string& fileName)
+    {
+    initialize(fileName.c_str());
+    }
+
 	void initialize(const char* fileName)
 	{
 		destroyData();
@@ -1180,7 +1335,7 @@ public:
 		return out_stream;
 	}
 
-	void checkErrorAndAbort()
+	void checkErrorAndAbort() const
 	{
     if(errorFlag)
     {
@@ -1189,16 +1344,32 @@ public:
     }
 	}
 
-	void        setAbortOnErrorFlag(){abortOnErrorFlag   = true;}
-	void        clearAbortOnErrorFlag(){abortOnErrorFlag = false;}
-	bool        getErrorFlag()   {return errorFlag;}
-	const char* getErrorMessage(){return errorMessage.c_str();}
-
-
-	void clearError()
+	void setAbortOnErrorFlag()  const
 	{
-	errorFlag = false;
-	errorMessage.clear();
+	XML_ParameterListArray* Eptr =  const_cast<XML_ParameterListArray*> (this);
+	Eptr->abortOnErrorFlag       = true;
+	}
+	void  clearAbortOnErrorFlag() const
+	{
+	XML_ParameterListArray* Eptr =  const_cast<XML_ParameterListArray*> (this);
+	Eptr-> abortOnErrorFlag = false;
+	}
+
+	bool        getErrorFlag()    const {return errorFlag;}
+	const char* getErrorMessage() const {return errorMessage.c_str();}
+
+
+	void clearError() const
+	{
+	XML_ParameterListArray* Eptr =  const_cast<XML_ParameterListArray*> (this);
+	Eptr->errorFlag = false;
+	Eptr->errorMessage.clear();
+	}
+
+
+    int isParameterList(const string& parameterListName) const
+	{
+	return isParameterList(parameterListName.c_str());
 	}
 
 	int isParameterList(const char* parameterListName) const
@@ -1208,6 +1379,12 @@ public:
 	TiXmlElement* parameterList = docHandle.FirstChild(parameterListName).ToElement();
 	if(parameterList) {return 1;}
 	return 0;
+	}
+
+
+	int isParameter(const string& parameterName, const string& parameterListName) const
+	{
+		return isParameter(parameterName.c_str(),parameterListName.c_str());
 	}
 
 	int isParameter(const char* parameterName, const char* parameterListName) const
@@ -1222,7 +1399,13 @@ public:
 	return 0;
 	}
 
-	long getParameterInstanceCount(const char* parameterName, const char* parameterListName)
+
+    long getParameterInstanceCount(const string& parameterName, const string& parameterListName) const
+    {
+    return getParameterInstanceCount(parameterName.c_str(),parameterListName.c_str());
+    }
+
+	long getParameterInstanceCount(const char* parameterName, const char* parameterListName) const
 	{
     if(isParameterList(parameterListName) == 0) {return 0;}
 
@@ -1245,11 +1428,20 @@ public:
 	//
 	// Indexing of the instance starts at 0 to facilitate extracting data into C type arrays
 	//
-	XML_dataType getParameterInstanceValue(int instanceIndex,const char* parameterName, const char* parameterListName)
+    XML_dataType getParameterInstanceValue(int instanceIndex,const string& parameterName, const string& parameterListName) const
+	{
+	return getParameterInstanceValue(instanceIndex, parameterName.c_str(), parameterListName.c_str());
+	}
+
+	XML_dataType getParameterInstanceValue(int instanceIndex,const char* parameterName, const char* parameterListName) const
 	{
     XML_dataType returnValue;
 	TiXmlHandle  docHandle(parameterArrayDocPtr->RootElement());
 	TiXmlElement* parameter = docHandle.FirstChild(parameterListName).ToElement();
+
+	// Setting error flags require over-riding const status
+
+    XML_ParameterListArray* Eptr =  const_cast<XML_ParameterListArray*> (this);
 
 	TiXmlNode* node;
 
@@ -1266,16 +1458,16 @@ public:
 			}
 			else
 			{
-			errorFlag   = true;
-		    errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
-	     	errorMessage.append("XML_ParameterListArray Class Error \n");
-	     	errorMessage.append("Parameter Instance Not found.\n");
-	     	errorMessage.append("Parameter List : ");
-	     	errorMessage.append(parameterListName);
-	     	errorMessage.append("\n");
-	     	errorMessage.append("Parameter      : ");
-	     	errorMessage.append(parameterName);
-	     	errorMessage.append("\n");
+			Eptr->errorFlag   = true;
+		    Eptr->errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+	     	Eptr->errorMessage.append("XML_ParameterListArray Class Error \n");
+	     	Eptr->errorMessage.append("Parameter Instance Not found.\n");
+	     	Eptr->errorMessage.append("Parameter List : ");
+	     	Eptr->errorMessage.append(parameterListName);
+	     	Eptr->errorMessage.append("\n");
+	     	Eptr->errorMessage.append("Parameter      : ");
+	     	Eptr->errorMessage.append(parameterName);
+	     	Eptr->errorMessage.append("\n");
 			}
 		}
 		count++;
@@ -1283,16 +1475,16 @@ public:
 
 	if(returnValue.isNull())
 	{
-	errorFlag = true;
+	Eptr->errorFlag = true;
 	}
 
 	if(errorFlag)
 	{
-	errorMessage.append("Parameter Instance : ");
-	stringStream.str("");
-	stringStream << instanceIndex;
-	errorMessage.append(stringStream.str());
-	errorMessage.append("\n");
+	Eptr->errorMessage.append("Parameter Instance : ");
+	Eptr->stringStream.str("");
+	Eptr->stringStream << instanceIndex;
+	Eptr->errorMessage.append(stringStream.str());
+	Eptr->errorMessage.append("\n");
 	}
 
 	if(abortOnErrorFlag){checkErrorAndAbort();}
@@ -1304,14 +1496,25 @@ public:
 	// Indexing of the instance starts at 0 to facilitate extracting data into C type arrays
     //
 
+    XML_dataType getParameterInstanceChildValue(int instanceIndex,const string& childParameter,
+			const string& parameterName, const string& parameterListName) const
+    {
+    return getParameterInstanceChildValue(instanceIndex,childParameter.c_str(),parameterName.c_str(),parameterListName.c_str());
+    }
+
 	XML_dataType getParameterInstanceChildValue(int instanceIndex,const char* childParameter,
-			const char* parameterName, const char* parameterListName)
+			const char* parameterName, const char* parameterListName) const
 	{
 	TiXmlHandle  docHandle(parameterArrayDocPtr->RootElement());
 	TiXmlElement* parameter = docHandle.FirstChild(parameterListName).ToElement();
 
+
 	TiXmlNode* node;
 	XML_dataType returnValue;
+
+    // Setting error flags require overriding const status
+
+    XML_ParameterListArray* Eptr =  const_cast<XML_ParameterListArray*> (this);
 
 	long count = 0;
 	for( node = parameter->FirstChild(parameterName);
@@ -1326,16 +1529,16 @@ public:
 	    	}
 	    	else
 	    	{
-	    	errorFlag   = true;
-	     	errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
-	     	errorMessage.append("XML_ParameterListArray Class Error \n");
-	     	errorMessage.append("Parameter Instance Child Value Not found.\n");
-	     	errorMessage.append("Parameter List : ");
-	     	errorMessage.append(parameterListName);
-	     	errorMessage.append("\n");
-	     	errorMessage.append("Parameter      : ");
-	     	errorMessage.append(parameterName);
-	     	errorMessage.append("\n");
+	    	Eptr->errorFlag   = true;
+	     	Eptr->errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+	     	Eptr->errorMessage.append("XML_ParameterListArray Class Error \n");
+	     	Eptr->errorMessage.append("Parameter Instance Child Value Not found.\n");
+	     	Eptr->errorMessage.append("Parameter List : ");
+	     	Eptr->errorMessage.append(parameterListName);
+	     	Eptr->errorMessage.append("\n");
+	     	Eptr->errorMessage.append("Parameter      : ");
+	     	Eptr->errorMessage.append(parameterName);
+	     	Eptr->errorMessage.append("\n");
 	    	}
 	    }
 	    count++;
@@ -1344,32 +1547,39 @@ public:
 
 	if((returnValue.isNull())&&(not errorFlag))
 	{
-	errorFlag = true;
-	errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
-	errorMessage.append("XML_ParameterListArray Class Error \n");
-	errorMessage.append("Parameter Instance Not found.\n");
-	errorMessage.append("Parameter List : ");
-	errorMessage.append(parameterListName);
-	errorMessage.append("\n");
-	errorMessage.append("Parameter      : ");
-	errorMessage.append(parameterName);
-	errorMessage.append("\n");
+	Eptr->errorFlag = true;
+	Eptr->errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+	Eptr->errorMessage.append("XML_ParameterListArray Class Error \n");
+	Eptr->errorMessage.append("Parameter Instance Not found.\n");
+	Eptr->errorMessage.append("Parameter List : ");
+	Eptr->errorMessage.append(parameterListName);
+	Eptr->errorMessage.append("\n");
+	Eptr->errorMessage.append("Parameter      : ");
+	Eptr->errorMessage.append(parameterName);
+	Eptr->errorMessage.append("\n");
 	}
 
 	if(errorFlag)
 	{
-	    	errorMessage.append("Parameter Instance : ");
-	    	stringStream.str("");
-	    	stringStream << instanceIndex;
-	    	errorMessage.append(stringStream.str());
-	    	errorMessage.append("\n");
-	        errorMessage.append("Parameter Child  : ");
-	    	errorMessage.append(childParameter);
-	    	errorMessage.append("\n");
+	    	Eptr->errorMessage.append("Parameter Instance : ");
+	    	Eptr->stringStream.str("");
+	    	Eptr->stringStream << instanceIndex;
+	    	Eptr->errorMessage.append(stringStream.str());
+	    	Eptr->errorMessage.append("\n");
+	        Eptr->errorMessage.append("Parameter Child  : ");
+	    	Eptr->errorMessage.append(childParameter);
+	    	Eptr->errorMessage.append("\n");
 	}
 	if(abortOnErrorFlag){checkErrorAndAbort();}
 	return returnValue;
 	}
+
+
+    bool isParameterInstanceChildValue(int instanceIndex,const string& childParameter,
+    const string& parameterName, const string& parameterListName) const
+    {
+    return isParameterInstanceChildValue(instanceIndex,childParameter.c_str(), parameterName.c_str(), parameterListName.c_str());
+    }
 
 
     bool isParameterInstanceChildValue(int instanceIndex,const char* childParameter,
@@ -1403,19 +1613,29 @@ public:
     return false;
 	}
 
-    XML_dataType getParameterChildValue(const char* childParameter, const char* parameterName, const char* parameterListName)
+    XML_dataType getParameterChildValue(const string& childParameter, const string& parameterName, const string& parameterListName) const
+	{
+	return getParameterChildValue(childParameter.c_str(), parameterName.c_str(), parameterListName.c_str());
+	}
+
+    XML_dataType getParameterChildValue(const char* childParameter, const char* parameterName, const char* parameterListName) const
 	{
     XML_dataType returnValue;
+
+    // Setting error flags require overriding const status
+
+    XML_ParameterListArray* Eptr =  const_cast<XML_ParameterListArray*> (this);
+
 	if(not isParameterList(parameterListName))
 	{
-		errorFlag = true;
-		errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
-		errorMessage.append("XML_ParameterListArray Class Error \n");
-		errorMessage.append("Parameter List not specified \n");
-		errorMessage.append("Parameter List requested : ");
-		errorMessage.append(parameterListName);
-		errorMessage.append("\n");
-		errorMessage.append("\n");
+		Eptr->errorFlag = true;
+		Eptr->errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+		Eptr->errorMessage.append("XML_ParameterListArray Class Error \n");
+		Eptr->errorMessage.append("Parameter List not specified \n");
+		Eptr->errorMessage.append("Parameter List requested : ");
+		Eptr->errorMessage.append(parameterListName);
+		Eptr->errorMessage.append("\n");
+		Eptr->errorMessage.append("\n");
 		if(not abortOnErrorFlag) return returnValue;
 	}
 	if(abortOnErrorFlag){checkErrorAndAbort();}
@@ -1427,9 +1647,9 @@ public:
 
 	if(errorFlag)
 	{
-	errorMessage.append("Parameter Child  : ");
-	errorMessage.append(childParameter);
-	errorMessage.append("\n");
+	Eptr->errorMessage.append("Parameter Child  : ");
+	Eptr->errorMessage.append(childParameter);
+	Eptr->errorMessage.append("\n");
 	if(not abortOnErrorFlag) {returnValue.initialize(); return returnValue;}
 	}
 
@@ -1442,7 +1662,12 @@ public:
    // If the specified parameter exists, then this routine returns the value, otherwise it returns the
    // defaultValue specified.
    //
-   XML_dataType getParameterValueOrDefault(const char* parameterName, const char* parameterListName, XML_dataType defaultValue )
+   XML_dataType getParameterValueOrDefault(const string& parameterName, const string& parameterListName, XML_dataType defaultValue ) const
+   {
+   return getParameterValueOrDefault(parameterName.c_str(), parameterListName.c_str(),defaultValue);
+   }
+
+   XML_dataType getParameterValueOrDefault(const char* parameterName, const char* parameterListName, XML_dataType defaultValue ) const
    {
 
    if(this->isParameter(parameterName,parameterListName))
@@ -1458,34 +1683,43 @@ public:
 	//
 
 
-	XML_dataType getParameterValue(const char* parameterName, const char* parameterListName)
+	XML_dataType getParameterValue(const string& parameterName, string& parameterListName) const
+	{
+	return getParameterValue(parameterName.c_str(),parameterListName.c_str());
+	}
+
+	XML_dataType getParameterValue(const char* parameterName, const char* parameterListName) const
 	{
 	XML_dataType returnValue;
 
+	// Setting error flags require overriding const status
+
+    XML_ParameterListArray* Eptr =  const_cast<XML_ParameterListArray*> (this);
+
 	if(not isParameterList(parameterListName))
 	{
-		errorFlag = true;
-		errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
-		errorMessage.append("XML_ParameterListArray Class Error \n");
-		errorMessage.append("Parameter List not specified \n");
-		errorMessage.append("Parameter List requested : ");
-		errorMessage.append(parameterListName);
-		errorMessage.append("\n");
-		errorMessage.append("\n");
+		Eptr->errorFlag = true;
+		Eptr->errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+		Eptr->errorMessage.append("XML_ParameterListArray Class Error \n");
+		Eptr->errorMessage.append("Parameter List not specified \n");
+		Eptr->errorMessage.append("Parameter List requested : ");
+		Eptr->errorMessage.append(parameterListName);
+		Eptr->errorMessage.append("\n");
+		Eptr->errorMessage.append("\n");
 		if(not abortOnErrorFlag) return returnValue;
 	}
 	if(abortOnErrorFlag){checkErrorAndAbort();}
 
 	if(isParameter(parameterName,parameterListName) == 0)
     {
-    errorFlag = true;
-	errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
-	errorMessage.append("XML_ParameterListArray Class Error \n");
-	errorMessage.append("Parameter specified by parameterName does not exist.\n\n");
-	errorMessage.append("ParameterName : ");
-	errorMessage.append(parameterName);
-	errorMessage.append("\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
-	errorMessage.append("\n");
+    Eptr->errorFlag = true;
+	Eptr->errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+	Eptr->errorMessage.append("XML_ParameterListArray Class Error \n");
+	Eptr->errorMessage.append("Parameter specified by parameterName does not exist.\n\n");
+	Eptr->errorMessage.append("ParameterName : ");
+	Eptr->errorMessage.append(parameterName);
+	Eptr->errorMessage.append("\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+	Eptr->errorMessage.append("\n");
 	if(not abortOnErrorFlag) return returnValue;
     }
     if(abortOnErrorFlag){checkErrorAndAbort();}
@@ -1500,7 +1734,14 @@ public:
 	return returnValue;
 	}
 
-	XML_dataType getParameterValue(const TiXmlElement* parameter,const char* parameterName, const char* parameterListName)
+
+	XML_dataType getParameterValue(const TiXmlElement* parameter,const string& parameterName, const string& parameterListName) const
+	{
+	return 	getParameterValue(parameter,parameterName.c_str(), parameterListName.c_str());
+	}
+
+
+	XML_dataType getParameterValue(const TiXmlElement* parameter,const char* parameterName, const char* parameterListName) const
 	{
 	int           intParam;
 	double     doubleParam;
@@ -1510,7 +1751,9 @@ public:
 	string      stringTemp;
 	bool     explicitType;
 
+    // Setting error flags require overriding const status
 
+    XML_ParameterListArray* Eptr =  const_cast<XML_ParameterListArray*> (this);
 
 	const char* dataType = 0;
 	if(parameter)
@@ -1520,16 +1763,16 @@ public:
 		//
 		if(parameter->Attribute("value") == 0)
 		{
-		errorFlag = true;
-		errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
-		errorMessage.append("XML_ParameterListArray Class Error \n");
-		errorMessage.append("Parameter Value not specified using value= \"...\"\n");
-		errorMessage.append("Parameter List : ");
-		errorMessage.append(parameterListName);
-		errorMessage.append("\n");
-		errorMessage.append("Parameter      : ");
-		errorMessage.append(parameterName);
-		errorMessage.append("\n");
+		Eptr->errorFlag = true;
+		Eptr->errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+		Eptr->errorMessage.append("XML_ParameterListArray Class Error \n");
+		Eptr->errorMessage.append("Parameter Value not specified using value= \"...\"\n");
+		Eptr->errorMessage.append("Parameter List : ");
+		Eptr->errorMessage.append(parameterListName);
+		Eptr->errorMessage.append("\n");
+		Eptr->errorMessage.append("Parameter      : ");
+		Eptr->errorMessage.append(parameterName);
+		Eptr->errorMessage.append("\n");
 		return XML_dataType();
 		}
 		//
@@ -1597,19 +1840,22 @@ public:
 		}
 	}
 
-	errorFlag = true;
-	errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
-	errorMessage.append("XML_ParameterListArray Class Error \n");
-	errorMessage.append("Parameter Not found.\n");
-	errorMessage.append("Parameter List : ");
-	errorMessage.append(parameterListName);
-	errorMessage.append("\n");
-	errorMessage.append("Parameter      : ");
-	errorMessage.append(parameterName);
-	errorMessage.append("\n");
+	Eptr->errorFlag = true;
+	Eptr->errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+	Eptr->errorMessage.append("XML_ParameterListArray Class Error \n");
+	Eptr->errorMessage.append("Parameter Not found.\n");
+	Eptr->errorMessage.append("Parameter List : ");
+	Eptr->errorMessage.append(parameterListName);
+	Eptr->errorMessage.append("\n");
+	Eptr->errorMessage.append("Parameter      : ");
+	Eptr->errorMessage.append(parameterName);
+	Eptr->errorMessage.append("\n");
 
 	return XML_dataType();
 	}
+
+
+
 
 
 
@@ -1621,7 +1867,12 @@ public:
 // Case independent versions of {true,yes} and {false,no}
 // are returned as type bool
 //
-const char* getDataType(const char* sIn)
+const char* getDataType(const string& sIn) const
+{
+return  getDataType(sIn.c_str());
+}
+
+const char* getDataType(const char* sIn) const
 {
     //
     // remove white space before and after variables
