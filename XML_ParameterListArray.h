@@ -1508,13 +1508,30 @@ public:
 	TiXmlHandle  docHandle(parameterArrayDocPtr->RootElement());
 	TiXmlElement* parameter = docHandle.FirstChild(parameterListName).ToElement();
 
+	// Setting error flags require overriding const status
+
+    XML_ParameterListArray* Eptr =  const_cast<XML_ParameterListArray*> (this);
+
+	if(not this->isParameter(parameterName,parameterListName))
+	{
+        Eptr->errorFlag   = true;
+        Eptr->errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+	    Eptr->errorMessage.append("XML_ParameterListArray Class Error \n");
+	    Eptr->errorMessage.append("ParameterList or Parameter Not found.\n");
+	    Eptr->errorMessage.append("ParameterList : ");
+	    Eptr->errorMessage.append(parameterListName);
+	    Eptr->errorMessage.append("\n");
+	    Eptr->errorMessage.append("Parameter     : ");
+	    Eptr->errorMessage.append(parameterName);
+	    Eptr->errorMessage.append("\n");
+	    if(abortOnErrorFlag){checkErrorAndAbort();}
+	}
+
 
 	TiXmlNode* node;
 	XML_dataType returnValue;
 
-    // Setting error flags require overriding const status
 
-    XML_ParameterListArray* Eptr =  const_cast<XML_ParameterListArray*> (this);
 
 	long count = 0;
 	for( node = parameter->FirstChild(parameterName);
@@ -1585,10 +1602,29 @@ public:
     bool isParameterInstanceChildValue(int instanceIndex,const char* childParameter,
     const char* parameterName, const char* parameterListName) const
 	{
+
 	if(parameterArrayDocPtr == 0) return false;
+
 
 	TiXmlHandle  docHandle(parameterArrayDocPtr->RootElement());
 	TiXmlElement* parameter = docHandle.FirstChild(parameterListName).ToElement();
+
+	XML_ParameterListArray* Eptr =  const_cast<XML_ParameterListArray*> (this);
+
+	if(not this->isParameter(parameterName,parameterListName))
+	{
+        Eptr->errorFlag   = true;
+        Eptr->errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+	    Eptr->errorMessage.append("XML_ParameterListArray Class Error \n");
+	    Eptr->errorMessage.append("ParameterList or Parameter Not found.\n");
+	    Eptr->errorMessage.append("ParameterList : ");
+	    Eptr->errorMessage.append(parameterListName);
+	    Eptr->errorMessage.append("\n");
+	    Eptr->errorMessage.append("Parameter     : ");
+	    Eptr->errorMessage.append(parameterName);
+	    Eptr->errorMessage.append("\n");
+	    if(abortOnErrorFlag){checkErrorAndAbort();}
+	}
 
 	TiXmlNode* node;
 
@@ -1597,6 +1633,8 @@ public:
 		 node;
 		 node = node->NextSibling(parameterName) )
 	{
+
+
 	    if(count == instanceIndex)
 	    {
 	    	if(node->FirstChild(childParameter))
