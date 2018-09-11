@@ -10,7 +10,7 @@ C++ 11
 
 ### Versioning
 
-Release : 18.09.04
+Release : 18.09.10
 
 ### Authors
 
@@ -23,6 +23,7 @@ GPLv3  For a copy of the GNU General Public License see <http://www.gnu.org/lice
 ### Acknowledgements
 
 The creator of tinyxml used to provide the XML parsing.
+
 
 
 
