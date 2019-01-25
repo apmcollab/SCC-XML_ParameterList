@@ -1306,11 +1306,16 @@ public:
 
 	}
 
+	void initializeFromString(const string& paramListAsString)
+	{
+	    this->initialize();
+	    this->parameterArrayDocPtr = new TiXmlDocument();
+		std::istringstream stringStream(paramListAsString);
+		stringStream >> *(this->parameterArrayDocPtr);
+	}
+
 	friend void operator >>(istream& in_stream, XML_ParameterListArray& P)
 	{
-    //
-	//  Output using pretty printing
-	//
 		P.initialize();
 		P.parameterArrayDocPtr = new TiXmlDocument();
 		in_stream >> *P.parameterArrayDocPtr;
