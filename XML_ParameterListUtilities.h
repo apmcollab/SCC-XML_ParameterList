@@ -14,6 +14,8 @@ using namespace std;
 
 #include "XML_ParameterListArray.h"
 
+#define _LOCAL_PATH_MAX 4096
+
 class XML_ParameterListUtilities
 {
 public:
@@ -430,21 +432,26 @@ const char*  parameterListName)
 //
 // If a file with name fileName does not exist then an empty string is returned.
 //
-string getBasePath(string fileName)
+string getBasePath(const string fileName)
 {
 	const char *symlinkpath = fileName.c_str();
 	char *actualpath;
-
+    char* pathBuffer = new char[_LOCAL_PATH_MAX];
 	string actualPath;
 	string   basePath;
-    actualpath = realpath(symlinkpath, NULL);
+	#ifndef _MSC_VER
+    actualpath =   realpath(symlinkpath, pathBuffer);
+    #else
+    actualpath =  _fullpath(pathBuffer,symlinkpath,_LOCAL_PATH_MAX);
+    #endif
     if (actualpath != NULL)
     {
     	actualPath.assign(actualpath);
-    	free(actualpath);
+        delete [] pathBuffer;
     	basePath = actualPath.substr(0,actualPath.find_last_of("/\\"));
     	return basePath;
    }
+   delete [] pathBuffer;
    return basePath;
 }
 
