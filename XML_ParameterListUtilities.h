@@ -433,10 +433,11 @@ const char*  parameterListName)
 }
 
 //
-//  Since code w.r.t. file and path names os OS specific, separate versions are required for 
+//  Since code w.r.t. file and path names os OS specific,
+//  separate versions are required for
 //  Linux/Unix systems (the default) and Microsoft OS's. 
 //
-string getBasePath(const string fileName)
+string getBasePath(const string& fileName)
 {
 	const char *symlinkpath = fileName.c_str();
 	char *actualpath;
@@ -448,10 +449,11 @@ string getBasePath(const string fileName)
     #else
     actualpath =  _fullpath(pathBuffer,symlinkpath,_LOCAL_PATH_MAX);
     #endif
+
     if (actualpath != NULL)
     {
-    	actualPath.assign(actualpath);
-    	basePath = actualPath.substr(0,actualPath.find_last_of("/\\"));
+        actualPath.assign(actualpath);
+    	basePath   = actualPath.substr(0,actualPath.find_last_of("/\\"));
     	return basePath;
    }
    return basePath;
@@ -464,7 +466,7 @@ string getCWD()
 	char   pathBuffer[_LOCAL_PATH_MAX];
 
 #ifndef _MSC_VER
-	actualpath = realpath("./", , pathBuffer);
+	actualpath = realpath("./", pathBuffer);
 #else
 	actualpath = _fullpath(pathBuffer, "./", _LOCAL_PATH_MAX);
 #endif
@@ -476,7 +478,7 @@ string getCWD()
    return actualPath;
 }
 
-string getBaseName(string fileName)
+string getBaseName(string& fileName)
 {
 	const char *symlinkpath = fileName.c_str();
 	char *actualpath;
