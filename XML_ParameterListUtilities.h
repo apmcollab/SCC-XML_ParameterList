@@ -4,6 +4,9 @@
  *  Created on: Mar 22, 2013
  *      Author: anderson
  */
+
+#include <sys/stat.h>
+
 #include <vector>
 #include <algorithm>
 #include <string>
@@ -430,13 +433,14 @@ const char*  parameterListName)
 }
 
 //
-// If a file with name fileName does not exist then an empty string is returned.
+//  Since code w.r.t. file and path names os OS specific, separate versions are required for 
+//  Linux/Unix systems (the default) and Microsoft OS's. 
 //
 string getBasePath(const string fileName)
 {
 	const char *symlinkpath = fileName.c_str();
 	char *actualpath;
-    char* pathBuffer = new char[_LOCAL_PATH_MAX];
+    char pathBuffer[_LOCAL_PATH_MAX];
 	string actualPath;
 	string   basePath;
 	#ifndef _MSC_VER
@@ -447,11 +451,9 @@ string getBasePath(const string fileName)
     if (actualpath != NULL)
     {
     	actualPath.assign(actualpath);
-        delete [] pathBuffer;
     	basePath = actualPath.substr(0,actualPath.find_last_of("/\\"));
     	return basePath;
    }
-   delete [] pathBuffer;
    return basePath;
 }
 
@@ -459,14 +461,21 @@ string getCWD()
 {
 	char *actualpath;
 	string actualPath;
-    actualpath = realpath("./", NULL);
+	char   pathBuffer[_LOCAL_PATH_MAX];
+
+#ifndef _MSC_VER
+	actualpath = realpath("./", , pathBuffer);
+#else
+	actualpath = _fullpath(pathBuffer, "./", _LOCAL_PATH_MAX);
+#endif
+
     if (actualpath != NULL)
     {
     	actualPath.assign(actualpath);
-    	free(actualpath);
    }
    return actualPath;
 }
+
 string getBaseName(string fileName)
 {
 	const char *symlinkpath = fileName.c_str();
@@ -474,11 +483,16 @@ string getBaseName(string fileName)
 
 	string actualPath;
 	string   baseName;
-    actualpath = realpath(symlinkpath, NULL);
+	char   pathBuffer[_LOCAL_PATH_MAX];
+
+#ifndef _MSC_VER
+	actualpath = realpath(symlinkpath, pathBuffer);
+#else
+	actualpath = _fullpath(pathBuffer, symlinkpath, _LOCAL_PATH_MAX);
+#endif
     if (actualpath != NULL)
     {
     	actualPath.assign(actualpath);
-    	free(actualpath);
     	baseName = actualPath.substr(actualPath.find_last_of("/\\")+1);
     	return baseName;
    }
@@ -489,10 +503,10 @@ string getBaseName(string fileName)
    return baseName;
 }
 
-bool fileExists(string fileName)
+bool fileExists(const string fileName)
 {
-	if(getBasePath(fileName).empty()) return 0;
-	return 1;
+	struct stat buffer;
+	return (stat(fileName.c_str(), &buffer) == 0);
 }
 };
 
