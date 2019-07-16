@@ -512,6 +512,6 @@ bool fileExists(const string fileName)
 }
 };
 
-
+#undef  _LOCAL_PATH_MAX
 
 #endif /* _XML_ParameterListUtilities_ */
