@@ -1951,6 +1951,8 @@ const char* getDataType(const char* sIn) const
 	if((firstChar >= 48)&&(firstChar <= 57))
 	{
 	if(strchr(s,'.'))   {return doubleType;}
+	if(strchr(s,'E'))   {return doubleType;}
+	if(strchr(s,'e'))   {return doubleType;}
 	else                {return longType;}
 	}
 
