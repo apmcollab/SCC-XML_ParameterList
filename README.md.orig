@@ -10,7 +10,11 @@ C++ 11
 
 ### Versioning
 
+<<<<<<< HEAD
+Release : 19.12.02
+=======
 Release : 19.01.25
+>>>>>>> a5df2eb074c1f4e490ba7cf067cb22c3707a87f9
 
 ### Authors
 
@@ -38,3 +42,7 @@ The creator of tinyxml used to provide the XML parsing.
 
 
 
+<<<<<<< HEAD
+
+=======
+>>>>>>> a5df2eb074c1f4e490ba7cf067cb22c3707a87f9
