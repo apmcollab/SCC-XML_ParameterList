@@ -1,7 +1,7 @@
 #include "XML_dataType.h"
 #include <sstream>
 #include <string>
-using namespace std;
+
 //
 //******************************************************************************
 //                      XML_DataType.cpp
@@ -108,7 +108,7 @@ XML_dataType::XML_dataType(double A ): s()
     type_name = TYPE_DOUBLE;
 }
 
-XML_dataType::XML_dataType(const string& A ): s(A)
+XML_dataType::XML_dataType(const std::string& A ): s(A)
 {
 	b = false;
     i = 0;
@@ -187,7 +187,7 @@ XML_dataType::XML_dataType(double* A ): s()
     type_name = TYPE_DOUBLE_PTR;
 }
 
-XML_dataType::XML_dataType(string* A): s()
+XML_dataType::XML_dataType(std::string* A): s()
 {
 	b = false;
     i = 0;
@@ -250,7 +250,7 @@ XML_dataType&  XML_dataType::operator =( const XML_dataType& A)
 //                    OUTPUT
 //********************************************************************************
 //
-ostream&  operator <<(ostream& out_stream, const XML_dataType& A)
+std::ostream&  operator <<(std::ostream& out_stream, const XML_dataType& A)
 {
 //
 //  Default Output  : Memberwise Output
@@ -270,12 +270,12 @@ ostream&  operator <<(ostream& out_stream, const XML_dataType& A)
      case XML_dataType::TYPE_LONG_PTR     : out_stream << *((long*)(A.v)); break;
      case XML_dataType::TYPE_FLOAT_PTR    : out_stream << *((float*)(A.v)); break;
      case XML_dataType::TYPE_DOUBLE_PTR   : out_stream << *((double*)(A.v)); break;
-     case XML_dataType::TYPE_STRING_PTR   : out_stream << *((string*)(A.v)); break;
+     case XML_dataType::TYPE_STRING_PTR   : out_stream << *((std::string*)(A.v)); break;
 
      }
      return out_stream;
 }
-istream&  operator >>(istream& in_stream, XML_dataType& A)
+std::istream&  operator >>(std::istream& in_stream, XML_dataType& A)
 {
 //
 //   Input
@@ -295,7 +295,7 @@ istream&  operator >>(istream& in_stream, XML_dataType& A)
      case XML_dataType::TYPE_LONG_PTR     : in_stream >> *((long*)(A.v)); break;
      case XML_dataType::TYPE_FLOAT_PTR    : in_stream >> *((float*)(A.v)); break;
      case XML_dataType::TYPE_DOUBLE_PTR   : in_stream >> *((double*)(A.v)); break;
-     case XML_dataType::TYPE_STRING_PTR   : in_stream >> *((string*)(A.v)); break;
+     case XML_dataType::TYPE_STRING_PTR   : in_stream >> *((std::string*)(A.v)); break;
 
      }
      return in_stream;
@@ -429,10 +429,10 @@ XML_dataType::operator double()
      return d_return;
 }
 
-XML_dataType::operator string()
+XML_dataType::operator std::string()
 {
 
-     string string_return;
+     std::string string_return;
 
      switch(type_name)
      {
@@ -449,7 +449,7 @@ XML_dataType::operator string()
      case TYPE_LONG_PTR  : XML_dataType::illegalConversion(); break;
      case TYPE_FLOAT_PTR : XML_dataType::illegalConversion(); break;
      case TYPE_DOUBLE_PTR: XML_dataType::illegalConversion(); break;
-     case TYPE_STRING_PTR: string_return = (*((string*)(v))); break;
+     case TYPE_STRING_PTR: string_return = (*((std::string*)(v))); break;
      }
      return string_return;
 }
@@ -474,7 +474,7 @@ XML_dataType::operator const char*()
      case TYPE_LONG_PTR  : XML_dataType::illegalConversion(); break;
      case TYPE_FLOAT_PTR : XML_dataType::illegalConversion(); break;
 	 case TYPE_DOUBLE_PTR: XML_dataType::illegalConversion(); break;
-	 case TYPE_STRING_PTR: charStar_return = ((string*)(v))->c_str(); break;
+	 case TYPE_STRING_PTR: charStar_return = ((std::string*)(v))->c_str(); break;
      }
 	 return charStar_return;
 }
@@ -602,7 +602,7 @@ void  XML_dataType::operator =(double A)
      }
 }
 
-void  XML_dataType::operator =(const string& A)
+void  XML_dataType::operator =(const std::string& A)
 {
      if(type_name == TYPE_NULL) type_name = TYPE_STRING;
 
@@ -620,7 +620,7 @@ void  XML_dataType::operator =(const string& A)
 	 case TYPE_LONG_PTR     : XML_dataType::illegalAssignment(); break;
 	 case TYPE_FLOAT_PTR    : XML_dataType::illegalAssignment(); break;
 	 case TYPE_DOUBLE_PTR   : XML_dataType::illegalAssignment(); break;
-     case TYPE_STRING_PTR   : *((string*)(v)) = A; break;
+     case TYPE_STRING_PTR   : *((std::string*)(v)) = A; break;
 
      }
 }
@@ -644,7 +644,7 @@ void  XML_dataType::operator =(const char* A)
      case TYPE_LONG_PTR     : XML_dataType::illegalAssignment(); break;
 	 case TYPE_FLOAT_PTR    : XML_dataType::illegalAssignment(); break;
 	 case TYPE_DOUBLE_PTR   : XML_dataType::illegalAssignment(); break;
-     case TYPE_STRING_PTR   : *((string*)(v)) = A; break;
+     case TYPE_STRING_PTR   : *((std::string*)(v)) = A; break;
      }
 }
  
@@ -663,17 +663,17 @@ void  XML_dataType::operator =(const char* A)
      case TYPE_STRING   : XML_dataType::illegalAssignment(); break;
  */
 
-string XML_dataType::toString()
+std::string XML_dataType::toString()
 {
-	 std::ostringstream oss(ostringstream::out);
-	 string string_return = "NULL";
+	 std::ostringstream oss(std::ostringstream::out);
+	 std::string string_return = "NULL";
      switch(type_name)
      {
      case TYPE_BOOL     : if(b == true) {string_return = "true"; } else {string_return = "false";}  break;
      case TYPE_INT      : oss << i; string_return = oss.str(); break;
      case TYPE_LONG     : oss << l; string_return = oss.str(); break;
-     case TYPE_FLOAT    : oss.setf(ios::scientific); oss.precision(8);   oss << f; string_return = oss.str(); break;
-     case TYPE_DOUBLE   : oss.setf(ios::scientific); oss.precision(15);  oss << d; string_return = oss.str(); break;
+     case TYPE_FLOAT    : oss.setf(std::ios::scientific); oss.precision(8);   oss << f; string_return = oss.str(); break;
+     case TYPE_DOUBLE   : oss.setf(std::ios::scientific); oss.precision(15);  oss << d; string_return = oss.str(); break;
      case TYPE_STRING   : string_return = s; break;
      }
      return string_return;
@@ -718,14 +718,14 @@ void XML_dataType::illegalConversion()
 {
 	const char* ErrMsg =
 	"XML_parameterList Class Error :\n\nIllegal Data Type Conversion";
-	cerr << ErrMsg << endl << endl << endl;
-	cerr << " Fatal Error " << endl;
+	std::cerr << ErrMsg << std::endl << std::endl << std::endl;
+	std::cerr << " Fatal Error " << std::endl;
 	exit(1);
 }
 void XML_dataType::illegalConversion(int typeA, int typeB)
 {
-	string typeAstring;
-	string typeBstring;
+	std::string typeAstring;
+	std::string typeBstring;
 	switch(typeA)
 	{
      case TYPE_BOOL     : typeAstring.assign("bool")  ; break;
@@ -746,11 +746,11 @@ void XML_dataType::illegalConversion(int typeA, int typeB)
      case TYPE_STRING   : typeBstring.assign("string") ; break;
      case TYPE_NULL     : typeBstring.assign( "null")  ; break;
     }
-    string ErrMsg =
+    std::string ErrMsg =
 	"XML_parameterList Class Error :\n\nIllegal Data Type Conversion\n";
 	ErrMsg.append("Attempting to convert a " + typeAstring + " to a " + typeBstring +"\n");
-	cerr << ErrMsg.c_str() << endl << endl << endl;
-	cerr << " Fatal Error " << endl;
+	std::cerr << ErrMsg.c_str() << std::endl << std::endl << std::endl;
+	std::cerr << " Fatal Error " << std::endl;
 	exit(1);
 }
 
@@ -758,8 +758,8 @@ void XML_dataType::nullOperand()
 {
 	const char* ErrMsg =
 	"XML_parameterList Class Error :\n\nNull Operand ";
-	cerr << ErrMsg << endl << endl << endl;
-	cerr << " Fatal Error " << endl;
+	std::cerr << ErrMsg << std::endl << std::endl << std::endl;
+	std::cerr << " Fatal Error " << std::endl;
 	exit(1);
 }
 
@@ -767,16 +767,16 @@ void XML_dataType::illegalAssignment()
 {
 	const char* ErrMsg =
 	"XML_parameterList Class Error :\n\nIllegal Assignment ";
-	cerr << ErrMsg << endl << endl << endl;
-	cerr << " Fatal Error " << endl;
+	std::cerr << ErrMsg << std::endl << std::endl << std::endl;
+	std::cerr << " Fatal Error " << std::endl;
 	exit(1);
 }
 
 
 void XML_dataType::illegalAssignment(int typeA, int typeB)
 {
-	string typeAstring;
-	string typeBstring;
+	std::string typeAstring;
+	std::string typeBstring;
 	switch(typeA)
 	{
      case TYPE_BOOL     : typeAstring.assign("bool")  ; break;
@@ -797,10 +797,10 @@ void XML_dataType::illegalAssignment(int typeA, int typeB)
      case TYPE_STRING   : typeBstring.assign("string") ; break;
      case TYPE_NULL     : typeBstring.assign( "null")  ; break;
     }
-    string ErrMsg =
+    std::string ErrMsg =
 	"XML_parameterList Class Error :\n\nIllegal Assignment \n";
 	ErrMsg.append("Attempting to assign a  " + typeAstring + " to a " + typeBstring +"\n");
-	cerr << ErrMsg.c_str() << endl << endl << endl;
-	cerr << " Fatal Error " << endl;
+	std::cerr << ErrMsg.c_str() << std::endl << std::endl << std::endl;
+	std::cerr << " Fatal Error " << std::endl;
 	exit(1);
 }

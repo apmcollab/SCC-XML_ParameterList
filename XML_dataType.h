@@ -9,7 +9,6 @@
 #include <string>
 #include <iostream>
 #include <cstdlib>
-using namespace std;
 
 class  XML_dataType
 {
@@ -21,7 +20,7 @@ public :
     long    l;
     float   f;
     double  d;
-    string  s;
+    std::string  s;
     void*   v;
     int  type_name;
 
@@ -43,7 +42,7 @@ public :
     XML_dataType(long A );
     XML_dataType(float A );
     XML_dataType(double A );
-    XML_dataType(const string& A );
+    XML_dataType(const std::string& A );
 
     XML_dataType(const char* A);
 
@@ -53,7 +52,7 @@ public :
     XML_dataType(long* A );
     XML_dataType(float* A );
     XML_dataType(double* A );
-    XML_dataType(string* A );
+    XML_dataType(std::string* A );
 //
 //  Destructor
 //
@@ -70,7 +69,7 @@ public :
 //
 //  Output
 //
-    friend ostream& operator <<(ostream& out_stream, const XML_dataType& A);
+    friend  std::ostream& operator <<(std::ostream& out_stream, const XML_dataType& A);
 //
 //  conversions
 //
@@ -80,8 +79,8 @@ public :
 	operator long();
 	operator float();
 	operator double();
-	operator string();
-	friend istream&  operator >>(istream& in_stream, XML_dataType& A);
+	operator std::string();
+	friend std::istream&  operator >>(std::istream& in_stream, XML_dataType& A);
 //
 //  assignments
 //
@@ -90,14 +89,14 @@ public :
     void  operator =(long A);
     void  operator =(float A);
     void  operator =(double A);
-    void  operator =(const string& A);
+    void  operator =(const std::string& A);
     void  operator =(const char* A);
 
     //void  operator =(const char* A);
 //
 //  Utility for output
 //
-    string toString();
+    std::string toString();
 
 //
 //  Typing mutatators
@@ -106,7 +105,7 @@ public :
     bool   isString();
     void   setType(int XML_dataTypeType);
     int    getType();
-    string getTypeAsString() const;
+    std::string getTypeAsString() const;
 
     int isNull(){if(getType() == TYPE_NULL){return 1;} return 0;}
 //

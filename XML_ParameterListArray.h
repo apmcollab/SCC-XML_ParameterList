@@ -5,7 +5,7 @@
 #include <cstring>
 #include <algorithm>
 #include <vector>
-using namespace std;
+
 
 //
 //******************************************************************************
@@ -65,7 +65,7 @@ public:
 	}
 
 
-    XML_ParameterListArray(const string& fileName)
+    XML_ParameterListArray(const std::string& fileName)
     {
         parameterArrayDocPtr = 0;
 		abortOnErrorFlag     = true;
@@ -116,7 +116,7 @@ public:
 //
 ////////////////////////////////////////////////////////////////////////
 
-    void createParameterListArray(const string& listArrayName)
+    void createParameterListArray(const std::string& listArrayName)
     {
        createParameterListArray(listArrayName.c_str());
     }
@@ -127,7 +127,7 @@ public:
     // Set up header
     //
 
-    string listFileName;
+    std::string listFileName;
     listFileName.assign(listArrayName);
     listFileName.append(".xml");
     initialize();
@@ -165,7 +165,7 @@ public:
     // Check to make sure parameterListName doesn't exist more than once
     //
 
-    void addParameterList(const string& parameterListName)
+    void addParameterList(const std::string& parameterListName)
     {
     addParameterList(parameterListName.c_str());
     }
@@ -195,7 +195,7 @@ public:
     }
 
 
-    void addParameter(const string&  parameterName, const string& parameterListName)
+    void addParameter(const std::string&  parameterName, const std::string& parameterListName)
     {
     addParameter(parameterName.c_str(), parameterListName.c_str());
     }
@@ -224,7 +224,7 @@ public:
     }
 
 
-    void addParameterNoTypeSpec(const string& value, const string& parameterName, const string& parameterListName)
+    void addParameterNoTypeSpec(const std::string& value, const std::string& parameterName, const std::string& parameterListName)
     {
     addParameterNoTypeSpec(value.c_str(),parameterName.c_str(), parameterListName.c_str());
     }
@@ -255,7 +255,7 @@ public:
     }
 
 
-    void addParameter(XML_dataType value, const string& parameterName, const string& parameterListName)
+    void addParameter(XML_dataType value, const std::string& parameterName, const std::string& parameterListName)
     {
         addParameter(value, parameterName.c_str(), parameterListName.c_str());
     }
@@ -289,7 +289,7 @@ public:
     {parameterElement->SetAttribute("type",getDataType(value.toString().c_str()));}
     }
 
-    void addParameterChild(const string& parameterChildName, const string& parameterName, const string& parameterListName)
+    void addParameterChild(const std::string& parameterChildName, const std::string& parameterName, const std::string& parameterListName)
     {
         addParameterChild(parameterChildName.c_str(),parameterName.c_str(), parameterListName.c_str());
     }
@@ -331,8 +331,8 @@ public:
     parameter->LinkEndChild( parameterChild );
     }
 
-    void addParameterChild(XML_dataType value, const string& parameterChildName,
-    const string& parameterName, const string& parameterListName)
+    void addParameterChild(XML_dataType value, const std::string& parameterChildName,
+    const std::string& parameterName, const std::string& parameterListName)
     {
     addParameterChild(value, parameterChildName.c_str(),parameterName.c_str(), parameterListName.c_str());
     }
@@ -384,8 +384,8 @@ public:
     }
 
 
-    void addParameterChildNoTypeSpec(XML_dataType value, const string& parameterChildName,
-    const string& parameterName, const string& parameterListName)
+    void addParameterChildNoTypeSpec(XML_dataType value, const std::string& parameterChildName,
+    const std::string& parameterName, const std::string& parameterListName)
     {
     addParameterChildNoTypeSpec(value,parameterChildName.c_str(),parameterName.c_str(), parameterListName.c_str());
     }
@@ -433,8 +433,8 @@ public:
     }
 
 
-    void addParameterInstanceChild(XML_dataType value, int instanceIndex, const string& parameterChildName,
-    const string& parameterName, const string& parameterListName)
+    void addParameterInstanceChild(XML_dataType value, int instanceIndex, const std::string& parameterChildName,
+    const std::string& parameterName, const std::string& parameterListName)
     {
     addParameterInstanceChild(value, instanceIndex,  parameterChildName.c_str(), parameterName.c_str(),parameterListName.c_str());
     }
@@ -485,7 +485,7 @@ public:
     }
 
 
-    void setParameterOrIgnore(XML_dataType value, const string& parameterName, string& parameterListName)
+    void setParameterOrIgnore(XML_dataType value, const std::string& parameterName, std::string& parameterListName)
     {
         setParameterOrIgnore(value,  parameterName.c_str(), parameterListName.c_str());
     }
@@ -501,7 +501,7 @@ public:
     }
 
 
-    void setParameter(XML_dataType value, const string& parameterName, const string& parameterListName)
+    void setParameter(XML_dataType value, const std::string& parameterName, const std::string& parameterListName)
     {
     setParameter(value, parameterName.c_str(), parameterListName.c_str());
     }
@@ -544,7 +544,7 @@ public:
     std::string stringTemp;
     if((dataType != 0)&&(strcmp(dataType,inputDataType) != 0))
     {
-    if(strcmp(dataType,"string") == 0) parameterElement->SetAttribute("value", XML_dataType(string(value)).toString().c_str());
+    if(strcmp(dataType,"string") == 0) parameterElement->SetAttribute("value", XML_dataType(std::string(value)).toString().c_str());
     if(strcmp(dataType,"bool") == 0)   parameterElement->SetAttribute("value", XML_dataType(bool(value)).toString().c_str());
     if(strcmp(dataType,"long") == 0)   parameterElement->SetAttribute("value", XML_dataType(long(value)).toString().c_str());
     if(strcmp(dataType,"int") == 0)    parameterElement->SetAttribute("value", XML_dataType(int(value)).toString().c_str());
@@ -552,7 +552,7 @@ public:
     if(strcmp(dataType,"double") == 0) parameterElement->SetAttribute("value", XML_dataType(double(value)).toString().c_str());
     if((strcmp(dataType,"bool") == 0)&&(strcmp(inputDataType,"string")== 0))
     {
-    stringTemp = XML_dataType(string(value)).toString();
+    stringTemp = XML_dataType(std::string(value)).toString();
     std::transform(stringTemp.begin(), stringTemp.end(),stringTemp.begin(), ::toupper);
 	if(stringTemp.compare("FALSE") == 0)  parameterElement->SetAttribute("value","false");
     if(stringTemp.compare("TRUE")  == 0)  parameterElement->SetAttribute("value","true");
@@ -573,7 +573,7 @@ public:
     }
     }
 
-    void setParameterType(const string& typeValue, const string& parameterName, const string& parameterListName)
+    void setParameterType(const std::string& typeValue, const std::string& parameterName, const std::string& parameterListName)
     {
     setParameterType(typeValue.c_str(),parameterName.c_str(), parameterListName.c_str());
     }
@@ -603,8 +603,8 @@ public:
     {parameterElement->SetAttribute("type",typeValue);}
     }
 
-    void setParameterChildValue(XML_dataType value,const string& childParameter,
-    const string& parameterName, const string& parameterListName)
+    void setParameterChildValue(XML_dataType value,const std::string& childParameter,
+    const std::string& parameterName, const std::string& parameterListName)
     {
     setParameterChildValue(value,childParameter.c_str(), parameterName.c_str(), parameterListName.c_str());
     }
@@ -653,7 +653,7 @@ public:
 
     if((dataType != 0)&&(strcmp(dataType,inputDataType) != 0))
     {
-    if(strcmp(dataType,"string") == 0) parameterChild->SetAttribute("value", XML_dataType(string(value)).toString().c_str());
+    if(strcmp(dataType,"string") == 0) parameterChild->SetAttribute("value", XML_dataType(std::string(value)).toString().c_str());
     if(strcmp(dataType,"bool") == 0)   parameterChild->SetAttribute("value", XML_dataType(bool(value)).toString().c_str());
     if(strcmp(dataType,"long") == 0)   parameterChild->SetAttribute("value", XML_dataType(long(value)).toString().c_str());
     if(strcmp(dataType,"int") == 0)    parameterChild->SetAttribute("value", XML_dataType(int(value)).toString().c_str());
@@ -661,7 +661,7 @@ public:
     if(strcmp(dataType,"double") == 0) parameterChild->SetAttribute("value", XML_dataType(double(value)).toString().c_str());
     if((strcmp(dataType,"bool") == 0)&&((strcmp(inputDataType,"string"))==0))
     {
-    stringTemp = XML_dataType(string(value)).toString();;
+    stringTemp = XML_dataType(std::string(value)).toString();;
     std::transform(stringTemp.begin(),    stringTemp.end(),stringTemp.begin(), ::toupper);
 	if(stringTemp.compare("FALSE") == 0)  parameterChild->SetAttribute("value","false");
     if(stringTemp.compare("TRUE")  == 0)  parameterChild->SetAttribute("value","true");
@@ -700,8 +700,8 @@ public:
     if(abortOnErrorFlag){checkErrorAndAbort();}
     }
 
-    void setParameterInstanceChildValue(XML_dataType value,int instanceIndex,const string& childParameter,
-    const string& parameterName, const string& parameterListName)
+    void setParameterInstanceChildValue(XML_dataType value,int instanceIndex,const std::string& childParameter,
+    const std::string& parameterName, const std::string& parameterListName)
     {
     setParameterInstanceChildValue(value,instanceIndex,childParameter.c_str(),parameterName.c_str(), parameterListName.c_str());
     }
@@ -751,7 +751,7 @@ public:
             dataType      = (node->FirstChild(childParameter))->ToElement()->Attribute("type");
 		    if((dataType != 0)&&(strcmp(dataType,inputDataType) != 0))
             {
-                if(strcmp(dataType,"string") == 0)  (node->FirstChild(childParameter))->ToElement()->SetAttribute("value", XML_dataType(string(value)).toString().c_str());
+                if(strcmp(dataType,"string") == 0)  (node->FirstChild(childParameter))->ToElement()->SetAttribute("value", XML_dataType(std::string(value)).toString().c_str());
                 if(strcmp(dataType,"bool") == 0)    (node->FirstChild(childParameter))->ToElement()->SetAttribute("value", XML_dataType(bool(value)).toString().c_str());
 		    	if(strcmp(dataType,"long") == 0)    (node->FirstChild(childParameter))->ToElement()->SetAttribute("value", XML_dataType(long(value)).toString().c_str());
 		    	if(strcmp(dataType,"int") == 0)     (node->FirstChild(childParameter))->ToElement()->SetAttribute("value", XML_dataType(int(value)).toString().c_str());
@@ -795,8 +795,8 @@ public:
 	}
 
 
-	void setParameterInstanceChildValue(XML_dataType value,const string& instanceName,const string& childParameter,
-    const string& parameterName, const string& parameterListName)
+	void setParameterInstanceChildValue(XML_dataType value,const std::string& instanceName,const std::string& childParameter,
+    const std::string& parameterName, const std::string& parameterListName)
     {
     setParameterInstanceChildValue(value,instanceName.c_str(),childParameter.c_str(), parameterName.c_str(), parameterListName.c_str());
     }
@@ -826,8 +826,8 @@ public:
 	TiXmlElement* parameter = docHandle.FirstChild(parameterListName).ToElement();
     TiXmlElement* parameterChild;
 	TiXmlNode* node;
-    string instanceString;
-    string indexString(instanceName);
+    std::string instanceString;
+    std::string indexString(instanceName);
     errorFlag          = true;
     bool instanceError = true;
 
@@ -852,7 +852,7 @@ public:
             dataType      = (node->FirstChild(childParameter))->ToElement()->Attribute("type");
 		    if((dataType != 0)&&(strcmp(dataType,inputDataType) != 0))
             {
-                if(strcmp(dataType,"string") == 0)  (node->FirstChild(childParameter))->ToElement()->SetAttribute("value", XML_dataType(string(value)).toString().c_str());
+                if(strcmp(dataType,"string") == 0)  (node->FirstChild(childParameter))->ToElement()->SetAttribute("value", XML_dataType(std::string(value)).toString().c_str());
                 if(strcmp(dataType,"bool") == 0)    (node->FirstChild(childParameter))->ToElement()->SetAttribute("value", XML_dataType(bool(value)).toString().c_str());
 		    	if(strcmp(dataType,"long") == 0)    (node->FirstChild(childParameter))->ToElement()->SetAttribute("value", XML_dataType(long(value)).toString().c_str());
 		    	if(strcmp(dataType,"int") == 0)     (node->FirstChild(childParameter))->ToElement()->SetAttribute("value", XML_dataType(int(value)).toString().c_str());
@@ -921,8 +921,8 @@ public:
 	}
 
 
-	XML_dataType getParameterChildValueOrDefault(const string& childParameter,
-    const string&  parameterName, const string&  parameterListName,XML_dataType defaultValue) const
+	XML_dataType getParameterChildValueOrDefault(const std::string& childParameter,
+    const std::string&  parameterName, const std::string&  parameterListName,XML_dataType defaultValue) const
     {
     return getParameterChildValueOrDefault(childParameter.c_str(), parameterName.c_str(), parameterListName.c_str(),defaultValue);
     }
@@ -938,8 +938,8 @@ public:
     }
 
 
-	XML_dataType getParameterInstanceChildValueOrDefault(int instanceIndex,const string& childParameter,
-    const string&  parameterName, const string&  parameterListName,XML_dataType defaultValue) const
+	XML_dataType getParameterInstanceChildValueOrDefault(int instanceIndex,const std::string& childParameter,
+    const std::string&  parameterName, const std::string&  parameterListName,XML_dataType defaultValue) const
     {
     return getParameterInstanceChildValueOrDefault(instanceIndex,childParameter.c_str(),
     parameterName.c_str(),parameterListName.c_str(),defaultValue);
@@ -955,8 +955,8 @@ public:
     return defaultValue;
     }
 
-	XML_dataType getParameterInstanceChildValue(const string& instanceName,const string& childParameter,
-    const string& parameterName, const string& parameterListName) const
+	XML_dataType getParameterInstanceChildValue(const std::string& instanceName,const std::string& childParameter,
+    const std::string& parameterName, const std::string& parameterListName) const
     {
     return getParameterInstanceChildValue(instanceName.c_str(),childParameter.c_str(),parameterName.c_str(), parameterListName.c_str());
     }
@@ -1008,8 +1008,8 @@ public:
 	TiXmlElement* parameter = docHandle.FirstChild(parameterListName).ToElement();
     TiXmlElement* parameterChild;
 	TiXmlNode* node;
-    string instanceString;
-    string indexString(instanceName);
+    std::string instanceString;
+    std::string indexString(instanceName);
     Eptr->errorFlag          = true;
     bool instanceError = true;
 
@@ -1078,7 +1078,7 @@ public:
 	}
 
 
-	void getParameterListNames(vector < string >& paramListNames) const
+	void getParameterListNames(std::vector < std::string >& paramListNames) const
 	{
 	paramListNames.clear();
 	if(parameterArrayDocPtr == 0) return;
@@ -1095,15 +1095,15 @@ public:
 	}
 
 
-	void getParameterChildNames(long instanceIndex, const string& parameterName,
-	string& parameterListName, vector < string >& paramChildNames) const
+	void getParameterChildNames(long instanceIndex, const std::string& parameterName,
+	std::string& parameterListName, std::vector < std::string >& paramChildNames) const
 	{
     getParameterChildNames(instanceIndex, parameterName.c_str(),parameterListName.c_str(), paramChildNames);
 	}
 
 
 	void getParameterChildNames(long instanceIndex, const char* parameterName,
-	const char* parameterListName, vector < string >& paramChildNames) const
+	const char* parameterListName, std::vector < std::string >& paramChildNames) const
 	{
 	paramChildNames.clear();
 	if(not isParameter(parameterName, parameterListName)) return;
@@ -1134,12 +1134,12 @@ public:
     }
 	}
 
-    void getParameterNames(const string& parameterListName, vector < string >& paramNames) const
+    void getParameterNames(const std::string& parameterListName, std::vector < std::string >& paramNames) const
 	{
 	getParameterNames(parameterListName.c_str(),paramNames);
 	}
 
-    void getParameterNames(const char* parameterListName, vector < string >& paramNames) const
+    void getParameterNames(const char* parameterListName, std::vector < std::string >& paramNames) const
 	{
 	paramNames.clear();
 	if(not isParameterList(parameterListName)) return;
@@ -1175,7 +1175,7 @@ public:
     return count;
 	}
 
-    long parameterListInstanceCount(const string& parameterListName) const
+    long parameterListInstanceCount(const std::string& parameterListName) const
     {
     return parameterListInstanceCount(parameterListName.c_str());
     }
@@ -1223,9 +1223,9 @@ public:
 	return count;
     }
 
-    vector<string> getParameterNames(const char* parameterListName)
+    std::vector<std::string> getParameterNames(const char* parameterListName)
     {
-    vector<string> paramNames;
+    std::vector<std::string> paramNames;
     if(parameterArrayDocPtr == 0) return paramNames;
 
     TiXmlHandle   docHandle(parameterArrayDocPtr->RootElement());
@@ -1264,7 +1264,7 @@ public:
 	abortOnErrorFlag     = P.abortOnErrorFlag;
 	}
 
-    void initalize(const string& fileName)
+    void initalize(const std::string& fileName)
     {
     initialize(fileName.c_str());
     }
@@ -1309,7 +1309,7 @@ public:
 
 	}
 
-	void initializeFromString(const string& paramListAsString)
+	void initializeFromString(const std::string& paramListAsString)
 	{
 	    this->initialize();
 	    this->parameterArrayDocPtr = new TiXmlDocument();
@@ -1317,7 +1317,7 @@ public:
 		stringStream >> *(this->parameterArrayDocPtr);
 	}
 
-	friend void operator >>(istream& in_stream, XML_ParameterListArray& P)
+	friend void operator >>(std::istream& in_stream, XML_ParameterListArray& P)
 	{
 		P.initialize();
 		P.parameterArrayDocPtr = new TiXmlDocument();
@@ -1332,7 +1332,7 @@ public:
 		errorMessage.clear();
 	}
 
-	friend ostream&  operator <<(ostream& out_stream, const XML_ParameterListArray& P)
+	friend std::ostream&  operator <<(std::ostream& out_stream, const XML_ParameterListArray& P)
 	{
     //
 	//  Output using pretty printing
@@ -1375,7 +1375,7 @@ public:
 	}
 
 
-    int isParameterList(const string& parameterListName) const
+    int isParameterList(const std::string& parameterListName) const
 	{
 	return isParameterList(parameterListName.c_str());
 	}
@@ -1390,7 +1390,7 @@ public:
 	}
 
 
-	int isParameter(const string& parameterName, const string& parameterListName) const
+	int isParameter(const std::string& parameterName, const std::string& parameterListName) const
 	{
 		return isParameter(parameterName.c_str(),parameterListName.c_str());
 	}
@@ -1408,7 +1408,7 @@ public:
 	}
 
 
-    long getParameterInstanceCount(const string& parameterName, const string& parameterListName) const
+    long getParameterInstanceCount(const std::string& parameterName, const std::string& parameterListName) const
     {
     return getParameterInstanceCount(parameterName.c_str(),parameterListName.c_str());
     }
@@ -1436,7 +1436,7 @@ public:
 	//
 	// Indexing of the instance starts at 0 to facilitate extracting data into C type arrays
 	//
-    XML_dataType getParameterInstanceValue(int instanceIndex,const string& parameterName, const string& parameterListName) const
+    XML_dataType getParameterInstanceValue(int instanceIndex,const std::string& parameterName, const std::string& parameterListName) const
 	{
 	return getParameterInstanceValue(instanceIndex, parameterName.c_str(), parameterListName.c_str());
 	}
@@ -1504,8 +1504,8 @@ public:
 	// Indexing of the instance starts at 0 to facilitate extracting data into C type arrays
     //
 
-    XML_dataType getParameterInstanceChildValue(int instanceIndex,const string& childParameter,
-			const string& parameterName, const string& parameterListName) const
+    XML_dataType getParameterInstanceChildValue(int instanceIndex,const std::string& childParameter,
+			const std::string& parameterName, const std::string& parameterListName) const
     {
     return getParameterInstanceChildValue(instanceIndex,childParameter.c_str(),parameterName.c_str(),parameterListName.c_str());
     }
@@ -1600,8 +1600,8 @@ public:
 	}
 
 
-    bool isParameterInstanceChildValue(int instanceIndex,const string& childParameter,
-    const string& parameterName, const string& parameterListName) const
+    bool isParameterInstanceChildValue(int instanceIndex,const std::string& childParameter,
+    const std::string& parameterName, const std::string& parameterListName) const
     {
     return isParameterInstanceChildValue(instanceIndex,childParameter.c_str(), parameterName.c_str(), parameterListName.c_str());
     }
@@ -1659,7 +1659,7 @@ public:
     return false;
 	}
 
-    XML_dataType getParameterChildValue(const string& childParameter, const string& parameterName, const string& parameterListName) const
+    XML_dataType getParameterChildValue(const std::string& childParameter, const std::string& parameterName, const std::string& parameterListName) const
 	{
 	return getParameterChildValue(childParameter.c_str(), parameterName.c_str(), parameterListName.c_str());
 	}
@@ -1708,7 +1708,7 @@ public:
    // If the specified parameter exists, then this routine returns the value, otherwise it returns the
    // defaultValue specified.
    //
-   XML_dataType getParameterValueOrDefault(const string& parameterName, const string& parameterListName, XML_dataType defaultValue ) const
+   XML_dataType getParameterValueOrDefault(const std::string& parameterName, const std::string& parameterListName, XML_dataType defaultValue ) const
    {
    return getParameterValueOrDefault(parameterName.c_str(), parameterListName.c_str(),defaultValue);
    }
@@ -1729,7 +1729,7 @@ public:
 	//
 
 
-	XML_dataType getParameterValue(const string& parameterName, string& parameterListName) const
+	XML_dataType getParameterValue(const std::string& parameterName, std::string& parameterListName) const
 	{
 	return getParameterValue(parameterName.c_str(),parameterListName.c_str());
 	}
@@ -1781,7 +1781,7 @@ public:
 	}
 
 
-	XML_dataType getParameterValue(const TiXmlElement* parameter,const string& parameterName, const string& parameterListName) const
+	XML_dataType getParameterValue(const TiXmlElement* parameter,const std::string& parameterName, const std::string& parameterListName) const
 	{
 	return 	getParameterValue(parameter,parameterName.c_str(), parameterListName.c_str());
 	}
@@ -1793,8 +1793,8 @@ public:
 	double     doubleParam;
 	float       floatParam;
 	bool         boolParam;
-	string     stringParam;
-	string      stringTemp;
+	std::string     stringParam;
+	std::string      stringTemp;
 	bool     explicitType;
 
     // Setting error flags require overriding const status
@@ -1913,7 +1913,7 @@ public:
 // Case independent versions of {true,yes} and {false,no}
 // are returned as type bool
 //
-const char* getDataType(const string& sIn) const
+const char* getDataType(const std::string& sIn) const
 {
 return  getDataType(sIn.c_str());
 }
@@ -1923,8 +1923,8 @@ const char* getDataType(const char* sIn) const
     //
     // remove white space before and after variables
     //
-    string sInString(sIn);
-    string sTrimmed(trim(sInString));
+    std::string sInString(sIn);
+    std::string sTrimmed(trim(sInString));
     const char* s   = sTrimmed.c_str();
 
     const char* boolType = "bool";
@@ -2035,10 +2035,10 @@ static inline std::string& rtrim(std::string& s) {
 	public:
 
 	TiXmlDocument* parameterArrayDocPtr;
-	string         errorMessage;
-	bool              errorFlag;
-	ostringstream  stringStream;
-	bool       abortOnErrorFlag;
+	std::string            errorMessage;
+	bool                      errorFlag;
+	std::ostringstream     stringStream;
+	bool               abortOnErrorFlag;
 
 };
 

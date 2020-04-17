@@ -10,7 +10,7 @@
 #include <vector>
 #include <algorithm>
 #include <string>
-using namespace std;
+
 
 #ifndef _XML_ParameterListUtilities_
 #define _XML_ParameterListUtilities_
@@ -36,16 +36,16 @@ XML_ParameterListUtilities(){};
 //
 
 void createDuplicateEntries(XML_ParameterListArray& paramList,
-vector<string>& exclusions,    XML_ParameterListArray& outputList)
+std::vector<std::string>& exclusions,    XML_ParameterListArray& outputList)
 {
-    vector<string> paramListNames;
-    vector<string> paramNames;
-    vector<string> paramChildNames;
+    std::vector<std::string> paramListNames;
+    std::vector<std::string> paramNames;
+    std::vector<std::string> paramChildNames;
     bool excludeFlag;
     bool abortOnErrorFlag  = paramList.abortOnErrorFlag;
     XML_dataType XMLvalue;
 
-    vector<string>::iterator it;
+    std::vector<std::string>::iterator it;
 
     long      paramInstanceIndex;
     paramList.getParameterListNames(paramListNames);
@@ -123,7 +123,7 @@ vector<string>& exclusions,    XML_ParameterListArray& outputList)
 // This routine copies the parameter list from the input XML_ParameterListArray. An
 // error message is generated if the parameter does not exist.
 //
-void copyParameterList(const XML_ParameterListArray& paramListArray,const string& paramList, XML_ParameterListArray& outputList)
+void copyParameterList(const XML_ParameterListArray& paramListArray,const std::string& paramList, XML_ParameterListArray& outputList)
 {
 copyParameterList(paramListArray,paramList.c_str(),  outputList);
 }
@@ -133,13 +133,13 @@ void copyParameterList(const XML_ParameterListArray& paramListArray,const char* 
 {
     bool errorFlag = true;
 
-    vector<string> paramListArrayNames;
-    vector<string> paramNames;
-    vector<string> paramChildNames;
+    std::vector<std::string> paramListArrayNames;
+    std::vector<std::string> paramNames;
+    std::vector<std::string> paramChildNames;
     bool abortOnErrorFlag  = paramListArray.abortOnErrorFlag;
     XML_dataType XMLvalue;
 
-    vector<string>::iterator it;
+    std::vector<std::string>::iterator it;
 
     long      paramInstanceIndex;
     paramListArray.getParameterListNames(paramListArrayNames);
@@ -240,7 +240,7 @@ void copyParameterList(const XML_ParameterListArray& paramListArray,const char* 
 //
 void assignParameters(XML_ParameterListArray& paramListArray,  XML_ParameterListArray& outputList)
 {
-    vector<string> paramListArrayNames;
+    std::vector<std::string> paramListArrayNames;
     paramListArray.getParameterListNames(paramListArrayNames);
     for(long k = 0; k < (long)paramListArrayNames.size(); k++)
     {
@@ -256,7 +256,7 @@ void assignParameters(XML_ParameterListArray& paramListArray,  XML_ParameterList
 //  An error message is generated if the parameter list, or parameter list parameter,
 //  does not exist in the outputList.
 //
-void assignParameters(XML_ParameterListArray& paramListArray,const string& paramList, XML_ParameterListArray& outputList)
+void assignParameters(XML_ParameterListArray& paramListArray,const std::string& paramList, XML_ParameterListArray& outputList)
 {
     assignParameters(paramListArray,paramList.c_str(), outputList);
 }
@@ -265,13 +265,13 @@ void assignParameters(XML_ParameterListArray& paramListArray,const char* paramLi
 {
     bool errorFlag = true;
 
-    vector<string> paramListArrayNames;
-    vector<string> paramNames;
-    vector<string> paramChildNames;
+    std::vector<std::string> paramListArrayNames;
+    std::vector<std::string> paramNames;
+    std::vector<std::string> paramChildNames;
     bool abortOnErrorFlag  = paramListArray.abortOnErrorFlag;
     XML_dataType XMLvalue;
 
-    vector<string>::iterator it;
+    std::vector<std::string>::iterator it;
 
     long      paramInstanceIndex;
     paramListArray.getParameterListNames(paramListArrayNames);
@@ -360,7 +360,7 @@ void assignParameters(XML_ParameterListArray& paramListArray,const char* paramLi
 // realpath system call on the specified file. If the file does
 // not exist then this routine is a no-op on that file name.
 //
-void insertFullPathNames(XML_ParameterListArray& paramList, const string& parameterChildName, const string& parameterName,const string&  parameterListName)
+void insertFullPathNames(XML_ParameterListArray& paramList, const std::string& parameterChildName, const std::string& parameterName,const std::string&  parameterListName)
 {
 	insertFullPathNames(paramList,parameterChildName.c_str(), parameterName.c_str(), parameterListName.c_str());
 }
@@ -369,17 +369,17 @@ void insertFullPathNames(XML_ParameterListArray& paramList,
 const char* parameterChildName, const char* parameterName,
 const char*  parameterListName)
 {
-    string fileName;
+    std::string fileName;
 
-    string basePath;
-    string baseName;
-    string fullFileName;
+    std::string basePath;
+    std::string baseName;
+    std::string fullFileName;
 
 	for(long i = 0; i < paramList.getParameterInstanceCount(parameterName, parameterListName); i++)
 	{
 	if(paramList.isParameterInstanceChildValue(i,parameterChildName,parameterName, parameterListName))
 	{
-	fileName = (string)paramList.getParameterInstanceChildValue(i,parameterChildName,
+	fileName = (std::string)paramList.getParameterInstanceChildValue(i,parameterChildName,
 	parameterName, parameterListName);
 	basePath = getBasePath(fileName);
 	baseName = getBaseName(fileName);
@@ -404,8 +404,8 @@ const char*  parameterListName)
 // value is a file, this routine replaces that file name with a full
 // path file name whose base path is specified.
 //
-void insertFullPathNames(const string& basePath, XML_ParameterListArray& paramList,
-const string& parameterChildName, const string& parameterName, const string&  parameterListName)
+void insertFullPathNames(const std::string& basePath, XML_ParameterListArray& paramList,
+const std::string& parameterChildName, const std::string& parameterName, const std::string&  parameterListName)
 {
 insertFullPathNames(basePath.c_str(), paramList, parameterChildName.c_str(), parameterName.c_str(), parameterListName.c_str());
 }
@@ -414,15 +414,15 @@ void insertFullPathNames(const char* basePath, XML_ParameterListArray& paramList
 const char* parameterChildName, const char* parameterName,
 const char*  parameterListName)
 {
-    string fileName;
-    string baseName;
-    string fullFileName;
+    std::string fileName;
+    std::string baseName;
+    std::string fullFileName;
 
 	for(long i = 0; i < paramList.getParameterInstanceCount(parameterName, parameterListName); i++)
 	{
 	if(paramList.isParameterInstanceChildValue(i,parameterChildName,parameterName, parameterListName))
 	{
-	fileName = (string)paramList.getParameterInstanceChildValue(i,parameterChildName,parameterName, parameterListName);
+	fileName = (std::string)paramList.getParameterInstanceChildValue(i,parameterChildName,parameterName, parameterListName);
 	baseName = getBaseName(fileName);
 	fullFileName = basePath;
 	fullFileName.append("/");
@@ -437,13 +437,13 @@ const char*  parameterListName)
 //  separate versions are required for
 //  Linux/Unix systems (the default) and Microsoft OS's. 
 //
-string getBasePath(const string& fileName)
+std::string getBasePath(const std::string& fileName)
 {
 	const char *symlinkpath = fileName.c_str();
 	char *actualpath;
     char pathBuffer[_LOCAL_PATH_MAX];
-	string actualPath;
-	string   basePath;
+	std::string actualPath;
+	std::string   basePath;
 	#ifndef _MSC_VER
     actualpath =   realpath(symlinkpath, pathBuffer);
     #else
@@ -459,10 +459,10 @@ string getBasePath(const string& fileName)
    return basePath;
 }
 
-string getCWD()
+std::string getCWD()
 {
 	char *actualpath;
-	string actualPath;
+	std::string actualPath;
 	char   pathBuffer[_LOCAL_PATH_MAX];
 
 #ifndef _MSC_VER
@@ -478,13 +478,13 @@ string getCWD()
    return actualPath;
 }
 
-string getBaseName(string& fileName)
+std::string getBaseName(std::string& fileName)
 {
 	const char *symlinkpath = fileName.c_str();
 	char *actualpath;
 
-	string actualPath;
-	string   baseName;
+	std::string actualPath;
+	std::string   baseName;
 	char   pathBuffer[_LOCAL_PATH_MAX];
 
 #ifndef _MSC_VER
@@ -505,7 +505,7 @@ string getBaseName(string& fileName)
    return baseName;
 }
 
-bool fileExists(const string fileName)
+bool fileExists(const std::string fileName)
 {
 	struct stat buffer;
 	return (stat(fileName.c_str(), &buffer) == 0);
