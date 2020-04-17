@@ -8,3 +8,4 @@ _*
 .hgignore
 .hgsub
 .settings
+build
