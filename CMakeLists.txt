@@ -9,4 +9,3 @@ target_compile_features    (XML_ParameterList PUBLIC cxx_std_11)
 target_include_directories (XML_ParameterList PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 
-
