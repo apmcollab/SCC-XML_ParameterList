@@ -7,6 +7,11 @@
 #include <vector>
 
 
+#ifdef _MSC_VER
+#include "iso646.h"          // So "and" is equivalenced to &&
+typedef unsigned int uint;   // Define uint to be unsigned int
+#endif
+
 //
 //******************************************************************************
 //                 XML_ParameterListArray.h
