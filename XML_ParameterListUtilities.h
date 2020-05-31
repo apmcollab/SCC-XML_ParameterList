@@ -12,8 +12,8 @@
 #include <string>
 
 
-#ifndef _XML_ParameterListUtilities_
-#define _XML_ParameterListUtilities_
+#ifndef XML_PARAMETER_LIST_UTILITIES_
+#define XML_PARAMETER_LIST_UTILITIES_
 
 #include "XML_ParameterListArray.h"
 

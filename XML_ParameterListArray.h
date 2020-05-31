@@ -40,8 +40,8 @@ typedef unsigned int uint;   // Define uint to be unsigned int
 // be set.
 //
 //
-#ifndef _XML_ParameterListArray_
-#define _XML_ParameterListArray_
+#ifndef XML_PARAMETER_LIST_ARRAY_
+#define XML_PARAMETER_LIST_ARRAY_
 
 #ifndef TIXML_USE_STL
 #define TIXML_USE_STL

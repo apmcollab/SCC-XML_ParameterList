@@ -4,9 +4,10 @@
 // Author: Chris Anderson  
 // (C) UCLA 2012 
 //
-#ifndef _XML_dataType_
-#define _XML_dataType_
+#ifndef XML_DATA_TYPE_
+#define XML_DATA_TYPE_
 #include <string>
+
 #include <iostream>
 #include <cstdlib>
 
