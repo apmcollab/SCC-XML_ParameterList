@@ -4,6 +4,7 @@
 #include <sstream>
 #include <cstring>
 #include <algorithm>
+#include <cctype>
 #include <vector>
 
 
@@ -557,8 +558,8 @@ public:
     if(strcmp(dataType,"double") == 0) parameterElement->SetAttribute("value", XML_dataType(double(value)).toString().c_str());
     if((strcmp(dataType,"bool") == 0)&&(strcmp(inputDataType,"string")== 0))
     {
-    stringTemp = XML_dataType(std::string(value)).toString();
-    std::transform(stringTemp.begin(), stringTemp.end(),stringTemp.begin(), ::toupper);
+    stringTemp = (std::string)(XML_dataType(std::string(value)).toString());
+	std::transform(stringTemp.begin(), stringTemp.end(), stringTemp.begin(), [](unsigned char c){return  static_cast<char>(std::toupper(c)); });
 	if(stringTemp.compare("FALSE") == 0)  parameterElement->SetAttribute("value","false");
     if(stringTemp.compare("TRUE")  == 0)  parameterElement->SetAttribute("value","true");
     if(stringTemp.compare("NO")    == 0)  parameterElement->SetAttribute("value","false");
@@ -667,7 +668,7 @@ public:
     if((strcmp(dataType,"bool") == 0)&&((strcmp(inputDataType,"string"))==0))
     {
     stringTemp = XML_dataType(std::string(value)).toString();;
-    std::transform(stringTemp.begin(),    stringTemp.end(),stringTemp.begin(), ::toupper);
+	std::transform(stringTemp.begin(), stringTemp.end(), stringTemp.begin(), [](unsigned char c) {return  static_cast<char>(std::toupper(c)); });
 	if(stringTemp.compare("FALSE") == 0)  parameterChild->SetAttribute("value","false");
     if(stringTemp.compare("TRUE")  == 0)  parameterChild->SetAttribute("value","true");
     if(stringTemp.compare("NO")    == 0)  parameterChild->SetAttribute("value","false");
@@ -1881,7 +1882,7 @@ public:
 			else // interrogate first for conversion to boolean based on false, true, yes or no,
 			{
 			stringTemp = stringParam;
-			std::transform(stringTemp.begin(), stringTemp.end(),stringTemp.begin(), ::toupper);
+			std::transform(stringTemp.begin(), stringTemp.end(), stringTemp.begin(), [](unsigned char c) {return  static_cast<char>(std::toupper(c)); });
 			if(stringTemp.compare("FALSE") == 0) {boolParam = false; return XML_dataType(boolParam);}
 			if(stringTemp.compare("TRUE")  == 0) {boolParam = true;  return XML_dataType(boolParam);}
 			if(stringTemp.compare("NO") == 0)    {boolParam = false; return XML_dataType(boolParam);}
@@ -1935,7 +1936,7 @@ const char* getDataType(const char* sIn) const
     const char* boolType = "bool";
 
     std::string stringTemp(s);
-	std::transform(stringTemp.begin(), stringTemp.end(),stringTemp.begin(), ::toupper);
+	std::transform(stringTemp.begin(), stringTemp.end(), stringTemp.begin(), [](unsigned char c) {return  static_cast<char>(std::toupper(c)); });
 	if(stringTemp.compare("FALSE") == 0)  return boolType;
 	if(stringTemp.compare("TRUE")  == 0)  return boolType;
 	if(stringTemp.compare("NO")    == 0)  return boolType;

@@ -10,7 +10,11 @@ C++ 11
 
 ### Versioning
 
-Release : 1.0.2
+Release : 1.0.3
+
+### Date
+
+July 16, 2020
 
 ### Authors
 
