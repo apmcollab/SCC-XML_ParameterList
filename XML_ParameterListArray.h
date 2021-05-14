@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cctype>
 #include <vector>
+#include <cassert>
 
 
 #ifdef _MSC_VER
@@ -1353,8 +1354,9 @@ public:
 	{
     if(errorFlag)
     {
-    	printf("\n%s\n",getErrorMessage());
-    	exit(1);
+    	throw std::runtime_error(getErrorMessage());
+    	//printf("\n%s\n",getErrorMessage());
+    	//exit(1);
     }
 	}
 
