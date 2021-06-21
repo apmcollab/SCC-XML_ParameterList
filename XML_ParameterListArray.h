@@ -1365,6 +1365,12 @@ public:
 	XML_ParameterListArray* Eptr =  const_cast<XML_ParameterListArray*> (this);
 	Eptr->abortOnErrorFlag       = true;
 	}
+
+	bool  getAbortOnErrorFlag() const
+	{
+		return abortOnErrorFlag;
+	}
+
 	void  clearAbortOnErrorFlag() const
 	{
 	XML_ParameterListArray* Eptr =  const_cast<XML_ParameterListArray*> (this);
