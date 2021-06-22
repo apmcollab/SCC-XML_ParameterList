@@ -61,7 +61,7 @@ bool checkParameter(const std::string& routineName, XML_ParameterListArray& para
 		errMsg.append("\n");
 		errorFlag = true;
 	}
-	if(not paramList.isParameter(paramName,listName))
+	if((not errorFlag)&&(not paramList.isParameter(paramName,listName)))
 	{
 		errMsg.append("\nXXXXX ");
 	    errMsg.append(routineName  + " Parameter Error \n");
@@ -106,6 +106,7 @@ bool checkParameter(const std::string& routineName, XML_ParameterListArray& para
 
 	bool errorFlag = false;
 
+
 	if(not paramList.isParameterList(listName))
 	{
 		errMsg.append("\nXXXXX ");
@@ -115,7 +116,9 @@ bool checkParameter(const std::string& routineName, XML_ParameterListArray& para
 		errMsg.append("\n");
 		errorFlag = true;
 	}
-	if(not paramList.isParameter(paramName,listName))
+
+
+	if((not errorFlag)&&(not paramList.isParameter(paramName,listName)))
 	{
 		errMsg.append("\nXXXXX ");
 	    errMsg.append(routineName  + " Parameter Error \n");
@@ -130,7 +133,7 @@ bool checkParameter(const std::string& routineName, XML_ParameterListArray& para
 
 	// Checks for first (0th) instance of child parameter
 
-    if(not paramList.isParameterInstanceChildValue(instanceID,paramChildName,paramName,listName))
+    if((not errorFlag)&&(not paramList.isParameterInstanceChildValue(instanceID,paramChildName,paramName,listName)))
 	{
 		errMsg.append("\nXXXXX ");
 	    errMsg.append(routineName + " Parameter Error \n");
