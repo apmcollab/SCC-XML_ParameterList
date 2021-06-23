@@ -42,7 +42,9 @@ void ifErrorThrowException(bool errorFlag, std::string errMsg, std::string fileN
 	throw std::runtime_error(fullErrMsg);
 }
 
-bool checkParameter(const std::string& routineName, XML_ParameterListArray& paramList,
+// Returns true if an error occurs
+
+bool checkParameterError(const std::string& routineName, XML_ParameterListArray& paramList,
 		            const std::string& paramName,
 					const std::string& listName,
 					std::string& errMsg)
@@ -84,17 +86,21 @@ bool checkParameter(const std::string& routineName, XML_ParameterListArray& para
 
 // Checks for first (0th index) instance of the specified child parameter
 
-bool checkParameter(const std::string& routineName, XML_ParameterListArray& paramList,
+// Returns true if an error occurs
+
+bool checkParameterError(const std::string& routineName, XML_ParameterListArray& paramList,
 		            const std::string& paramChildName,
 		            const std::string& paramName,
 				    const std::string& listName,
 				    std::string& errMsg)
 {
 	int instanceID = 0;
-	return checkParameter(routineName, paramList, instanceID, paramChildName, paramName,listName,errMsg);
+	return checkParameterError(routineName, paramList, instanceID, paramChildName, paramName,listName,errMsg);
 }
 
-bool checkParameter(const std::string& routineName, XML_ParameterListArray& paramList,
+// Returns true if an error occurs
+
+bool checkParameterError(const std::string& routineName, XML_ParameterListArray& paramList,
 		            int instanceID,
 				    const std::string& paramChildName,
 		            const std::string& paramName,
