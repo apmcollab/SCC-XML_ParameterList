@@ -1103,7 +1103,7 @@ public:
 
 
 	void getParameterChildNames(long instanceIndex, const std::string& parameterName,
-	std::string& parameterListName, std::vector < std::string >& paramChildNames) const
+	const std::string& parameterListName, std::vector < std::string >& paramChildNames) const
 	{
     getParameterChildNames(instanceIndex, parameterName.c_str(),parameterListName.c_str(), paramChildNames);
 	}
@@ -1743,7 +1743,7 @@ public:
 	//
 
 
-	XML_dataType getParameterValue(const std::string& parameterName, std::string& parameterListName) const
+	XML_dataType getParameterValue(const std::string& parameterName, const std::string& parameterListName) const
 	{
 	return getParameterValue(parameterName.c_str(),parameterListName.c_str());
 	}
