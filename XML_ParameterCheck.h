@@ -45,6 +45,35 @@ void ifErrorThrowException(bool errorFlag, std::string errMsg, std::string fileN
 // Returns true if an error occurs
 
 bool checkParameterError(const std::string& routineName, XML_ParameterListArray& paramList,
+					const std::string& listName,
+					std::string& errMsg)
+{
+	bool abortOnErrorFlag = paramList.getAbortOnErrorFlag();
+	paramList.clearAbortOnErrorFlag();
+
+    bool errorFlag = false;
+
+	if(not paramList.isParameterList(listName))
+	{
+		errMsg.append("\nXXXXX ");
+	    errMsg.append(routineName  + " Parameter Error \n");
+		errMsg.append("Parameter list missing : ");
+		errMsg.append(listName);
+		errMsg.append("\n");
+		errorFlag = true;
+	}
+
+	if(abortOnErrorFlag)
+	{
+	paramList.setAbortOnErrorFlag();
+	}
+
+	return errorFlag;
+}
+
+// Returns true if an error occurs
+
+bool checkParameterError(const std::string& routineName, XML_ParameterListArray& paramList,
 		            const std::string& paramName,
 					const std::string& listName,
 					std::string& errMsg)
