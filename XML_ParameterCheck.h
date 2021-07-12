@@ -44,7 +44,7 @@ void ifErrorThrowException(bool errorFlag, std::string errMsg, std::string fileN
 
 // Returns true if an error occurs
 
-bool checkParameterError(const std::string& routineName, XML_ParameterListArray& paramList,
+bool checkParameterError(const std::string& routineName, const XML_ParameterListArray& paramList,
 					const std::string& listName,
 					std::string& errMsg)
 {
@@ -73,7 +73,7 @@ bool checkParameterError(const std::string& routineName, XML_ParameterListArray&
 
 // Returns true if an error occurs
 
-bool checkParameterError(const std::string& routineName, XML_ParameterListArray& paramList,
+bool checkParameterError(const std::string& routineName, const XML_ParameterListArray& paramList,
 		            const std::string& paramName,
 					const std::string& listName,
 					std::string& errMsg)
@@ -117,7 +117,7 @@ bool checkParameterError(const std::string& routineName, XML_ParameterListArray&
 
 // Returns true if an error occurs
 
-bool checkParameterError(const std::string& routineName, XML_ParameterListArray& paramList,
+bool checkParameterError(const std::string& routineName, const XML_ParameterListArray& paramList,
 		            const std::string& paramChildName,
 		            const std::string& paramName,
 				    const std::string& listName,
@@ -129,7 +129,7 @@ bool checkParameterError(const std::string& routineName, XML_ParameterListArray&
 
 // Returns true if an error occurs
 
-bool checkParameterError(const std::string& routineName, XML_ParameterListArray& paramList,
+bool checkParameterError(const std::string& routineName, const XML_ParameterListArray& paramList,
 		            int instanceID,
 				    const std::string& paramChildName,
 		            const std::string& paramName,
