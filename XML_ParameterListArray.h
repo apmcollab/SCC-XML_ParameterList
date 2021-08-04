@@ -1932,6 +1932,135 @@ const char* getDataType(const std::string& sIn) const
 return  getDataType(sIn.c_str());
 }
 
+
+void Tokenize(const std::string& str,std::vector<std::string>& tokens, const std::string& delimiters = " ") const
+{
+    // Skip delimiters at beginning.
+    std::string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+    // Find first "non-delimiter".
+    std::string::size_type pos     = str.find_first_of(delimiters, lastPos);
+
+    while (std::string::npos != pos || std::string::npos != lastPos)
+    {
+        // Found a token, add it to the vector.
+        tokens.push_back(str.substr(lastPos, pos - lastPos));
+        // Skip delimiters.  Note the "not_of"
+        lastPos = str.find_first_not_of(delimiters, pos);
+        // Find next "non-delimiter"
+        pos = str.find_first_of(delimiters, lastPos);
+    }
+}
+
+bool isInteger(const std::string& sIn) const
+{
+    std::string stringTemp(sIn);
+	std::transform(stringTemp.begin(), stringTemp.end(), stringTemp.begin(), [](unsigned char c)
+	{return  static_cast<char>(std::toupper(c)); });
+
+	std::string::iterator it;
+    std::string::iterator itStart;
+
+    itStart = stringTemp.begin();
+    if((*itStart == '+')||(*itStart == '-')) ++itStart;
+
+    bool isIntegerFlag = true;
+    for (it = itStart; it != stringTemp.end();it++)
+    {
+        if(not (((int)*it >= 48)&&((int)*it <= 57)))
+        {
+        isIntegerFlag = false;
+        }
+    }
+
+    return isIntegerFlag;
+}
+
+bool isNoExponentDouble(const std::string& sIn) const
+{
+    std::vector<std::string> tokens;
+    std::string delimiters;
+    delimiters = ".";
+	Tokenize(sIn,tokens,delimiters);
+	if(tokens.size() == 1)
+	{
+      if(isInteger(tokens[0]))
+      {return true;}
+      else
+      {return false;}
+	}
+	else if(tokens.size() == 2)
+	{
+      if((isInteger(tokens[0]))&&(isInteger(tokens[1])))
+      {return true;}
+      else
+      {return false;}
+    }
+    return false;
+}
+
+const char* getDataType(const char* sIn) const
+{
+    // remove white space before and after variables
+
+    std::string sInString(sIn);
+    std::string sTrimmed(trim(sInString));
+    const char* s   = sTrimmed.c_str();
+
+    const char* boolType   = "bool";
+	const char* doubleType = "double";
+	const char* longType   = "long";
+	const char* stringType = "string";
+
+	// Check for boolean first
+
+    std::string stringTemp(s);
+	std::transform(stringTemp.begin(), stringTemp.end(), stringTemp.begin(), [](unsigned char c)
+	{return  static_cast<char>(std::toupper(c)); });
+	if(stringTemp.compare("FALSE") == 0)  return boolType;
+	if(stringTemp.compare("TRUE")  == 0)  return boolType;
+	if(stringTemp.compare("NO")    == 0)  return boolType;
+	if(stringTemp.compare("YES")   == 0)  return boolType;
+
+    // Check for integer
+
+	if(isInteger(stringTemp)) return longType;
+
+	// Check for double
+
+	std::string::iterator it;
+
+    size_t Ecount = 0;
+    for (it = stringTemp.begin(); it != stringTemp.end();it++)
+    {
+    	if(*it == 'E') Ecount++;
+    }
+
+    if(Ecount > 1) return stringType;
+
+    std::vector<std::string> tokens;
+    std::string delimiters;
+
+    if(Ecount == 0)
+    {
+      if(isNoExponentDouble(stringTemp)) return doubleType;
+      return stringType;
+    }
+    if(Ecount == 1)
+    {
+      delimiters = "E";
+      Tokenize(stringTemp,tokens,delimiters);
+      if(tokens.size() != 2) return stringType;
+      if((isNoExponentDouble(tokens[0]))&&(isInteger(tokens[1])))
+      {
+      return doubleType;
+      }
+      return stringType;
+    }
+	return stringType;
+}
+
+
+/*
 const char* getDataType(const char* sIn) const
 {
     //
@@ -2011,22 +2140,15 @@ const char* getDataType(const char* sIn) const
 	if((firstChar == 39)||(firstChar == 34)) {return stringType;}
 	return stringType;
 }
-
-
-// trim from both ends
-static inline std::string &trim(std::string &s) {
-        return ltrim(rtrim(s));
-}
-
-// trim from start
-/*
-static inline std::string &ltrim(std::string &s) {
-        s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
-        return s;
-}
 */
 
-static inline std::string& ltrim(std::string& s) {
+// trim from both ends
+
+inline std::string &trim(std::string &s) const {return ltrim(rtrim(s));}
+
+// trim from start
+
+inline std::string& ltrim(std::string& s) const {
 	s.erase(s.begin(), std::find_if(s.begin(), s.end(),
 		([](int c) {return !std::isspace(c);} )  ));
 	return s;
@@ -2034,14 +2156,8 @@ static inline std::string& ltrim(std::string& s) {
 
 // trim from end
 
-/*
-static inline std::string &rtrim(std::string &s) {
-        s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
-        return s;
-}
-*/
-static inline std::string& rtrim(std::string& s) {
-	s.erase(std::find_if(s.rbegin(), s.rend(), ([](int c) {return !std::isspace(c); })).base(), s.end());
+inline std::string& rtrim(std::string& s) const {
+s.erase(std::find_if(s.rbegin(), s.rend(), ([](int c) {return !std::isspace(c); })).base(), s.end());
 	return s;
 }
 
