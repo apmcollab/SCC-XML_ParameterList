@@ -42,6 +42,25 @@ void ifErrorThrowException(bool errorFlag, std::string errMsg, std::string fileN
 	throw std::runtime_error(fullErrMsg);
 }
 
+void ifErrorAbort(bool errorFlag, std::string errMsg, std::string fileName = "")
+{
+	if(not errorFlag) return;
+
+	if(fileName.empty())
+	{
+    printf("\n %s \n",errMsg.c_str());
+    printf("XXXX Execution Complete XXXXX\n\n\n");
+	}
+
+	std::string fullErrMsg = "\nXXXXXXXXXXX Parameter Input Error XXXXXXXXXXXXX \n";
+	fullErrMsg.append("Parameter file : ");
+	fullErrMsg.append(fileName + "\n");
+	fullErrMsg.append(errMsg);
+	printf("\n %s \n",fullErrMsg.c_str());
+	printf("XXXX Execution Complete XXXXX\n\n\n");
+	exit(1);
+}
+
 // Returns true if an error occurs
 
 bool checkParameterError(const std::string& routineName, const XML_ParameterListArray& paramList,
