@@ -194,10 +194,13 @@ bool checkParameterError(const std::string& routineName, const XML_ParameterList
 		errMsg.append("Parameter child missing : ");
 		errMsg.append(paramChildName);
 	    errMsg.append("\n");
-		errMsg.append("Parameter      : ");
+		errMsg.append("Parameter          : ");
 	    errMsg.append(paramName);
 	    errMsg.append("\n");
-		errMsg.append("Parameter list : ");
+	    errMsg.append("Parameter instance : ");
+	    errMsg.append(std::to_string(instanceID +1));
+	    errMsg.append("\n");
+		errMsg.append("Parameter list     : ");
 		errMsg.append(listName);
 		errMsg.append("\n");
 		errorFlag = true;
