@@ -42,7 +42,7 @@ endif
 RELEASE_DIR  = ./_releaseXML_ParameterList
 DEBUG_DIR    = ./_debugXML_ParameterList
 
-DEBUG_LIBRARY    = $(LIB_DIR)/libXML_ParameterList_debug.a
+DEBUG_LIBRARY    = $(LIB_DIR)/libXML_ParameterListd.a
 RELEASE_LIBRARY  = $(LIB_DIR)/libXML_ParameterList.a 
 
 include ./CommonLibMake.mk
