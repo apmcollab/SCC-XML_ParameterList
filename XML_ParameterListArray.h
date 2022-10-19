@@ -151,6 +151,8 @@ public:
 	parameterArrayDocPtr->LinkEndChild( root );
 
 	abortOnErrorFlag     =  true;
+
+	parameterFileName.clear();
     }
 
     const char* getParameterListArrayName() const
@@ -1269,6 +1271,7 @@ public:
 	destroyData();
 	parameterArrayDocPtr = new TiXmlDocument(*(P.parameterArrayDocPtr));
 	abortOnErrorFlag     = P.abortOnErrorFlag;
+	parameterFileName    = P.parameterFileName;
 	}
 
     void initalize(const std::string& fileName)
@@ -1314,6 +1317,8 @@ public:
 
 		if(abortOnErrorFlag){checkErrorAndAbort();}
 
+		parameterFileName = std::string(fileName);
+
 	}
 
 	void initializeFromString(const std::string& paramListAsString)
@@ -1322,6 +1327,8 @@ public:
 	    this->parameterArrayDocPtr = new TiXmlDocument();
 		std::istringstream stringStream(paramListAsString);
 		stringStream >> *(this->parameterArrayDocPtr);
+
+		parameterFileName.clear();
 	}
 
 	friend void operator >>(std::istream& in_stream, XML_ParameterListArray& P)
@@ -1337,6 +1344,7 @@ public:
 		parameterArrayDocPtr = 0;
 		errorFlag            = false;
 		errorMessage.clear();
+		parameterFileName.clear();
 	}
 
 	friend std::ostream&  operator <<(std::ostream& out_stream, const XML_ParameterListArray& P)
@@ -1386,6 +1394,11 @@ public:
 	XML_ParameterListArray* Eptr =  const_cast<XML_ParameterListArray*> (this);
 	Eptr->errorFlag = false;
 	Eptr->errorMessage.clear();
+	}
+
+	std::string getParameterFileName() const
+	{
+		return parameterFileName;
 	}
 
 
@@ -2169,6 +2182,8 @@ s.erase(std::find_if(s.rbegin(), s.rend(), ([](int c) {return !std::isspace(c); 
 	bool                      errorFlag;
 	std::ostringstream     stringStream;
 	bool               abortOnErrorFlag;
+
+	std::string      parameterFileName;
 
 };
 
