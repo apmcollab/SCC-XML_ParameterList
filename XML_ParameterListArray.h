@@ -128,6 +128,7 @@ public:
        createParameterListArray(listArrayName.c_str());
     }
 
+
     void createParameterListArray(const char* listArrayName)
     {
     //
@@ -168,6 +169,17 @@ public:
     void operator=(const XML_ParameterListArray& P)
     {
     initialize(P);
+    }
+    //
+    // Adds a comment
+    //
+    void addComment(const std::string& XMLcomment)
+    {
+    	TiXmlComment * comment   = new TiXmlComment();
+	    comment->SetValue(XMLcomment.c_str());
+	    TiXmlHandle  docHandle(parameterArrayDocPtr->RootElement());
+	    TiXmlElement* root = docHandle.ToElement();
+        root->LinkEndChild(comment);
     }
 
     //
