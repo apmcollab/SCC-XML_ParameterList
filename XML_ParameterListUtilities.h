@@ -352,6 +352,81 @@ void assignParameters(XML_ParameterListArray& paramListArray,const char* paramLi
 	exit(0);
 	}
 }
+//
+// This method adds the parameter list outputParamList to the ParameterListArray
+// outputList and then replicates the parameters in the input parameter list into
+// that parameter list (outputParamList).
+//
+void copyParameterList(const XML_ParameterListArray& paramListArray,
+const char* paramList, XML_ParameterListArray& outputList, const std::string& outputParamList)
+{
+    outputList.addParameterList(outputParamList);
+
+    std::vector<std::string> paramListArrayNames;
+    std::vector<std::string> paramNames;
+    std::vector<std::string> paramChildNames;
+    XML_dataType XMLvalue;
+
+    std::vector<std::string>::iterator it;
+
+    long      paramInstanceIndex;
+    paramNames.clear();
+    paramListArray.getParameterNames(paramList,paramNames);
+
+    // Remove duplicate parameter names
+
+    std::sort(paramNames.begin(),paramNames.end());
+    it = std::unique(paramNames.begin(), paramNames.end());
+    paramNames.resize(it - paramNames.begin());
+
+    for(long j = 0; j < (long)paramNames.size(); j++)
+    {
+    for(paramInstanceIndex = 0;
+    paramInstanceIndex < (long)paramListArray.getParameterInstanceCount(paramNames[j],paramList);
+    paramInstanceIndex++)
+    {
+
+    paramChildNames.clear();
+    paramListArray.getParameterChildNames(paramInstanceIndex, paramNames[j], paramList, paramChildNames);
+
+    if(paramChildNames.size() == 0)
+    {
+
+    outputList.addParameter(
+    paramListArray.getParameterInstanceValue(paramInstanceIndex, paramNames[j],paramList),
+    paramNames[j], outputParamList);
+    }
+    else // add parameter and child parameter values
+    {
+    outputList.addParameter(paramNames[j], outputParamList);
+
+    // Add parameter value if it is specified
+
+    paramListArray.clearAbortOnErrorFlag();
+
+    XMLvalue = paramListArray.getParameterInstanceValue(paramInstanceIndex,paramNames[j], paramList);
+    if(not XMLvalue.isNull())
+    {outputList.setParameter(XMLvalue,paramNames[j], outputParamList);}
+
+    // Add child parameter values
+
+    for(long i = 0; i < (int)paramChildNames.size(); i++)
+    {
+    outputList.addParameterInstanceChild(paramListArray.getParameterInstanceChildValue(paramInstanceIndex,
+                                         paramChildNames[i],
+                                         paramNames[j],
+                                         paramList),
+                                         paramInstanceIndex,
+                                         paramChildNames[i], paramNames[j], outputParamList);
+    }
+
+    }}
+
+    } // parameter instances
+
+}
+
+
 
 //
 // Given a specified parameter child (named parameterChileName) whose
