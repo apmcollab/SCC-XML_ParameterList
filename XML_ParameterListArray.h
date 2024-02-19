@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <map>
 #include <cstdio>
 #include <sstream>
 #include <cstring>
@@ -1179,6 +1180,30 @@ public:
     }
 	}
 
+    void getParameterTypeNames(const std::string& parameterListName, std::map < std::string, std::string >& paramTypeNames) const
+	{
+	getParameterTypeNames(parameterListName.c_str(),paramTypeNames);
+	}
+
+	void getParameterTypeNames(const char* parameterListName, std::map < std::string, std::string >& paramTypeNames) const
+	{
+	paramTypeNames.clear();
+	if(not isParameterList(parameterListName)) return;
+
+	paramTypeNames.clear();
+	if(parameterArrayDocPtr == 0) return;
+	TiXmlHandle   docHandle(parameterArrayDocPtr->RootElement());
+	TiXmlNode* parameterList = docHandle.FirstChild(parameterListName).Element();
+	TiXmlNode* child = 0;
+    while((child = parameterList->IterateChildren( child )))
+    {
+    if(child->Type() != TiXmlNode::TINYXML_COMMENT)
+	{
+    paramTypeNames[child->Value()] = getParameterTypeName(child->ToElement(),child->Value(),parameterListName);
+	}
+    }
+	}
+
     long parameterListCount() const
 	{
 	if(parameterArrayDocPtr == 0) return 0;
@@ -1940,7 +1965,169 @@ public:
 	}
 
 
+	std::string getParameterTypeName(const std::string& parameterName, const std::string& parameterListName) const
+	{
+	return getParameterTypeName(parameterName.c_str(),parameterListName.c_str());
+	}
 
+	std::string getParameterTypeName(const char* parameterName, const char* parameterListName) const
+	{
+	std::string returnValue;
+
+	// Setting error flags require overriding const status
+
+    XML_ParameterListArray* Eptr =  const_cast<XML_ParameterListArray*> (this);
+
+	if(not isParameterList(parameterListName))
+	{
+		Eptr->errorFlag = true;
+		Eptr->errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+		Eptr->errorMessage.append("XML_ParameterListArray Class Error \n");
+		Eptr->errorMessage.append("Parameter List not specified \n");
+		Eptr->errorMessage.append("Parameter List requested : ");
+		Eptr->errorMessage.append(parameterListName);
+		Eptr->errorMessage.append("\n");
+		Eptr->errorMessage.append("\n");
+		if(not abortOnErrorFlag) return returnValue;
+	}
+	if(abortOnErrorFlag){checkErrorAndAbort();}
+
+	if(isParameter(parameterName,parameterListName) == 0)
+    {
+    Eptr->errorFlag = true;
+	Eptr->errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+	Eptr->errorMessage.append("XML_ParameterListArray Class Error \n");
+	Eptr->errorMessage.append("Parameter specified by parameterName does not exist.\n\n");
+	Eptr->errorMessage.append("ParameterName : ");
+	Eptr->errorMessage.append(parameterName);
+	Eptr->errorMessage.append("\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+	Eptr->errorMessage.append("\n");
+	if(not abortOnErrorFlag) return returnValue;
+    }
+    if(abortOnErrorFlag){checkErrorAndAbort();}
+
+
+	TiXmlHandle  docHandle(parameterArrayDocPtr->RootElement());
+	TiXmlElement* parameter = docHandle.FirstChild(parameterListName).FirstChild(parameterName).ToElement();
+
+	returnValue = getParameterTypeName(parameter, parameterName,  parameterListName);
+
+	if(abortOnErrorFlag){checkErrorAndAbort();}
+	return returnValue;
+	}
+
+	std::string getParameterTypeName(const TiXmlElement* parameter,const char* parameterName, const char* parameterListName) const
+	{
+	int           intParam;
+	double     doubleParam;
+	float       floatParam;
+	bool         boolParam;
+	std::string     stringParam;
+	std::string      stringTemp;
+	bool     explicitType;
+
+    // Setting error flags require overriding const status
+
+    XML_ParameterListArray* Eptr =  const_cast<XML_ParameterListArray*> (this);
+
+	const char* dataType = 0;
+	if(parameter)
+	{
+		//
+		// Check for values attribute
+		//
+		if(parameter->Attribute("value") == 0)
+		{
+		Eptr->errorFlag = true;
+		Eptr->errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+		Eptr->errorMessage.append("XML_ParameterListArray Class Error \n");
+		Eptr->errorMessage.append("Parameter Value not specified using value= \"...\"\n");
+		Eptr->errorMessage.append("Parameter List : ");
+		Eptr->errorMessage.append(parameterListName);
+		Eptr->errorMessage.append("\n");
+		Eptr->errorMessage.append("Parameter      : ");
+		Eptr->errorMessage.append(parameterName);
+		Eptr->errorMessage.append("\n");
+		return XML_dataType();
+		}
+		//
+		// Check for explicitly typed parameters
+		//
+		explicitType = true;
+		dataType = parameter->Attribute("type");
+
+		//
+		// If not explicitly typed, then discover the type by interrogating the string representation
+		//
+
+		if(dataType == 0)
+		{
+		 stringParam = parameter->Attribute("value");
+		 dataType = getDataType(stringParam.c_str());
+		 return std::string(dataType);
+		}
+
+		if(strcmp(dataType,"bool") == 0)
+		{
+			if(parameter->QueryBoolAttribute("value",&boolParam)  == TIXML_SUCCESS) {return std::string("bool");}
+		}
+		if(strcmp(dataType,"int") == 0)
+		{
+			if(parameter->QueryIntAttribute("value",&intParam)  == TIXML_SUCCESS) {return std::string("int");}
+		}
+		if(strcmp(dataType,"long") == 0)
+		{
+			if(parameter->QueryIntAttribute("value",&intParam)  == TIXML_SUCCESS) {return std::string("long");}
+		}
+		if(strcmp(dataType,"float") == 0)
+		{
+			if(parameter->QueryFloatAttribute("value",&floatParam)  == TIXML_SUCCESS) {return std::string("float");}
+		}
+		if(strcmp(dataType,"double") == 0)
+		{
+			if(parameter->QueryDoubleAttribute("value",&doubleParam)  == TIXML_SUCCESS) {return std::string("double");}
+		}
+		//
+		// For strings, if not explicitly typed, check to see if it's a boolean variable first
+		// as designated by any upper or lower case collection of letters spelling true, false
+		// or yes or no.
+		//
+		// I don't use tinyXML QueryBoolAttribute since it returns incorrectly if one specifies the
+		// string None.
+
+		if(strcmp(dataType,"string") == 0)
+		{
+			//if(parameter->QueryBoolAttribute("value",&boolParam)  == TIXML_SUCCESS)     {return XML_dataType(boolParam);}
+
+            if(parameter->QueryStringAttribute("value",&stringParam)  == TIXML_SUCCESS)
+            {
+            if(explicitType){return std::string("string");}
+			else // interrogate first for conversion to boolean based on false, true, yes or no,
+			{
+			stringTemp = stringParam;
+			std::transform(stringTemp.begin(), stringTemp.end(), stringTemp.begin(), [](unsigned char c) {return  static_cast<char>(std::toupper(c)); });
+			if(stringTemp.compare("FALSE") == 0) {return std::string("bool");}
+			if(stringTemp.compare("TRUE")  == 0) {return std::string("bool");}
+			if(stringTemp.compare("NO") == 0)    {return std::string("bool");}
+			if(stringTemp.compare("YES")  == 0)  {return std::string("bool");}
+			return XML_dataType(stringParam);
+			}}
+		}
+	}
+
+	Eptr->errorFlag = true;
+	Eptr->errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+	Eptr->errorMessage.append("XML_ParameterListArray Class Error \n");
+	Eptr->errorMessage.append("Parameter Not found.\n");
+	Eptr->errorMessage.append("Parameter List : ");
+	Eptr->errorMessage.append(parameterListName);
+	Eptr->errorMessage.append("\n");
+	Eptr->errorMessage.append("Parameter      : ");
+	Eptr->errorMessage.append(parameterName);
+	Eptr->errorMessage.append("\n");
+
+	return XML_dataType();
+	}
 
 
 
