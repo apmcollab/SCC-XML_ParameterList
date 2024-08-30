@@ -1,12 +1,12 @@
 /*
- * XML_ParameterLIstArray.h
+ * XML_ParameterListArray.h
  *
  *  Created on: Aug 29, 2024
  *      Author: anderson
  *
- *
+ * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  * !!!! Alpha version based upon tinyxml2 !!!!
- *
+ * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  *
  */
 #include <stdexcept>
@@ -23,8 +23,7 @@
 #ifndef XML_PARAMETER_LIST_ARRAY_
 #define XML_PARAMETER_LIST_ARRAY_
 
-
-class XML_ParameterLIstArray
+class XML_ParameterListArray
 {
 public:
 
@@ -40,14 +39,14 @@ protected :
 public:
 
 /// Null constructor
-	XML_ParameterLIstArray()
+	XML_ParameterListArray()
 	{
     parameterArrayDocPtr = nullptr;
 	initialize();
 	}
 
 /// Copy constructor
-	XML_ParameterLIstArray(const XML_ParameterLIstArray& P)
+	XML_ParameterListArray(const XML_ParameterListArray& P)
 	{
     parameterArrayDocPtr  = nullptr;
     if(P.isNull()){initialize();return;}
@@ -55,7 +54,7 @@ public:
 	}
 
 /// Destructor
-	virtual ~XML_ParameterLIstArray()
+	virtual ~XML_ParameterListArray()
 	{
     if(parameterArrayDocPtr != nullptr) {delete parameterArrayDocPtr;}
 	}
@@ -78,7 +77,7 @@ public:
 /**	Copy constructor for an existing instance.
 	The contents of the invoking instance are removed.
 */
-	void initialize(const XML_ParameterLIstArray& P)
+	void initialize(const XML_ParameterListArray& P)
 	{
     initialize();
     if(P.isNull()){initialize();return;}
@@ -159,7 +158,7 @@ public:
 	}
 
 /// Stream output
-	friend std::ostream&  operator <<(std::ostream& out_stream, const XML_ParameterLIstArray& P)
+	friend std::ostream&  operator <<(std::ostream& out_stream, const XML_ParameterListArray& P)
 	{
 	    tinyxml2::XMLPrinter printer;
 		P.parameterArrayDocPtr->Print( &printer );
@@ -216,7 +215,7 @@ public:
     }
 
 /// Creates a duplicate instance
-    void operator=(const XML_ParameterLIstArray& P)
+    void operator=(const XML_ParameterListArray& P)
     {
     initialize(P);
     }
