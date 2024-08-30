@@ -450,7 +450,7 @@ const char*  parameterListName)
     std::string baseName;
     std::string fullFileName;
 
-	for(long i = 0; i < paramList.getParameterInstanceCount(parameterName, parameterListName); i++)
+	for(size_t i = 0; i < paramList.getParameterInstanceCount(parameterName, parameterListName); i++)
 	{
 	if(paramList.isParameterInstanceChildValue(i,parameterChildName,parameterName, parameterListName))
 	{
@@ -493,7 +493,7 @@ const char*  parameterListName)
     std::string baseName;
     std::string fullFileName;
 
-	for(long i = 0; i < paramList.getParameterInstanceCount(parameterName, parameterListName); i++)
+	for(size_t i = 0; i < paramList.getParameterInstanceCount(parameterName, parameterListName); i++)
 	{
 	if(paramList.isParameterInstanceChildValue(i,parameterChildName,parameterName, parameterListName))
 	{

@@ -1872,20 +1872,26 @@ public:
 	tinyxml2::XMLNode* node = 0;
     tinyxml2::XMLNode* child = 0;
 
+    std::string nodeName;
+
 	long count = 0;
 	for( node = parameterList->FirstChildElement(parameterName);
 		 node;
 		 node = node->NextSibling() )
 	{
+		nodeName = node->Value();
+		if(nodeName.compare(parameterName) == 0)
+		{
 	    if(count == instanceIndex)
 	    {
 	    	for( child = node->FirstChildElement(); child; child = child->NextSibling())
 	    	{
-	    		if(not node->ToComment())
-	    		{paramChildNames.push_back(child->ToElement()->Name());}
+	    		if(not child->ToComment())
+	    		{paramChildNames.push_back(child->Value());}
 	    	}
         }
         count++;
+		}
     }
 	}
 
