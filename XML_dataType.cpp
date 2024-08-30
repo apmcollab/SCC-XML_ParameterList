@@ -306,7 +306,7 @@ std::istream&  operator >>(std::istream& in_stream, XML_dataType& A)
 //********************************************************************************
 //
 
-XML_dataType::operator bool()
+XML_dataType::operator bool() const
 {
      bool b_return = 0;
 
@@ -330,7 +330,7 @@ XML_dataType::operator bool()
      return b_return;
 }
 
-XML_dataType::operator int()
+XML_dataType::operator int() const
 {
      int i_return = 0;
 
@@ -354,7 +354,7 @@ XML_dataType::operator int()
      return i_return;
 }
 
-XML_dataType::operator long()
+XML_dataType::operator long() const
 {
      long l_return = 0;
 
@@ -379,7 +379,7 @@ XML_dataType::operator long()
      return l_return;
 }
 
-XML_dataType::operator float()
+XML_dataType::operator float() const
 {
      float f_return =0.0;
 
@@ -404,7 +404,7 @@ XML_dataType::operator float()
      return f_return;
 }
 
-XML_dataType::operator double()
+XML_dataType::operator double() const
 {
      double d_return = 0.0;
 
@@ -429,7 +429,7 @@ XML_dataType::operator double()
      return d_return;
 }
 
-XML_dataType::operator std::string()
+XML_dataType::operator std::string() const
 {
 
      std::string string_return;
@@ -663,7 +663,7 @@ void  XML_dataType::operator =(const char* A)
      case TYPE_STRING   : XML_dataType::illegalAssignment(); break;
  */
 
-std::string XML_dataType::toString()
+std::string XML_dataType::toString() const
 {
 	 std::ostringstream oss(std::ostringstream::out);
 	 std::string string_return = "NULL";
@@ -683,12 +683,12 @@ void  XML_dataType::setType(int XML_dataTypeType)
     type_name = XML_dataTypeType;
 }
 
-int  XML_dataType::getType()
+int  XML_dataType::getType()const
 {
     return type_name;
 }
 
-bool XML_dataType::isString()
+bool XML_dataType::isString() const
 {
 	if(type_name == TYPE_STRING) return true;
 	return false;

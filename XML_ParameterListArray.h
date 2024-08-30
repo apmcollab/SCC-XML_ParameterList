@@ -16,6 +16,7 @@
 #include <sstream>
 #include <algorithm>
 #include <vector>
+#include <cstring>
 
 #include "tinyxml2.h"
 #include "XML_dataType.h"
@@ -31,7 +32,7 @@ public:
 	inline static bool               errorFlag = false;
 	inline static bool        abortOnErrorFlag = true;
 
-protected :
+public :
 
 	tinyxml2::XMLDocument* parameterArrayDocPtr;
 	std::string       parameterFileName;
@@ -201,7 +202,6 @@ public:
     tinyxml2::XMLElement * root = parameterArrayDocPtr->NewElement(listArrayName);
 	parameterArrayDocPtr->InsertEndChild( root );
 
-
     parameterFileName.clear();
     }
 
@@ -236,7 +236,7 @@ public:
     	addComment(XMLcomment,parameterListName.c_str());
     }
 
-/// Adds a comment as the first element within a parameter list
+/// Adds a comment as element within a parameter list
     void addComment(const std::string& XMLcomment,const char* parameterListName)
     {
     	abortIfNull();
@@ -253,7 +253,7 @@ public:
     	addComment(XMLcomment,parameterName.c_str(),parameterListName.c_str());
     }
 
-/// Adds a comment within parameter list for a specific parameter
+/// Adds a comment within parameter list for a specific parameter, just below parameter specifiction
     void addComment(const std::string& XMLcomment,const char* parameterName,const char* parameterListName)
     {
     	abortIfNull();
@@ -263,7 +263,7 @@ public:
     	tinyxml2::XMLElement* parameter     = parameterList->FirstChildElement(parameterName);
         checkParameter(parameter,parameterName,parameterListName,"addComment(...)");
     	tinyxml2::XMLComment* xmlComment    = parameterArrayDocPtr->NewComment(XMLcomment.c_str());
-        parameter->InsertFirstChild(xmlComment);
+        parameterList->InsertAfterChild(parameter,xmlComment);
     }
 
 /// Returns the number of parameter lists specified in the XML document
@@ -338,18 +338,26 @@ public:
 	{
     if(isNull()) return 0;
 	tinyxml2::XMLHandle  docHandle(parameterArrayDocPtr->RootElement());
+	tinyxml2::XMLElement* parameterListElement = docHandle.FirstChildElement(parameterListName).ToElement();
+    checkParameterList(parameterListElement,parameterListName,"void addParameter(...)");
 
-	tinyxml2::XMLElement* parameter = docHandle.FirstChildElement(parameterListName).ToElement();
+	tinyxml2::XMLElement* parameterElement = parameterListElement->FirstChildElement(parameterName)->ToElement();
+
+	if(parameterElement == 0){return 0;}
 
 	tinyxml2::XMLNode* node;
+	std::string    nodeName;
 
 	size_t count = 0;
-	for( node = parameter;
+	for( node = parameterListElement->FirstChild();
 		 node;
 		 node = node->NextSibling())
 	{
-		if(not node->ToComment())
-        {count++;}
+	    nodeName = node->Value();
+	    if(nodeName.compare(parameterName) == 0)
+	    {
+		if(not node->ToComment()){count++;}
+        }
 	}
 	return count;
 	}
@@ -363,10 +371,10 @@ public:
 /// Determines if a parameter is with the specified parameter list
 	bool isParameter(const char* parameterName, const char* parameterListName) const
 	{
+    if(isNull()) return false;
+
 	if(not isParameterList(parameterListName))
     {return false;}
-
-	if(isNull()) return false;
 
 	tinyxml2::XMLHandle  docHandle(parameterArrayDocPtr->RootElement());
 	tinyxml2::XMLElement* parameter = docHandle.FirstChildElement(parameterListName).FirstChildElement(parameterName).ToElement();
@@ -588,14 +596,20 @@ public:
 	tinyxml2::XMLElement* parameterElement      = parameterListElement->FirstChildElement(parameterName);
 	checkParameter(parameterElement,parameterName,parameterListName,"addParameterInstanceChild(...)");
 
+	checkInstanceIndex(instanceIndex,parameterName,parameterListName,"addParameterInstanceChild(...)");
+
     tinyxml2::XMLElement* parameterChild     = parameterArrayDocPtr->NewElement(parameterChildName);
 	tinyxml2::XMLNode*    node;
+	std::string nodeName;
 
 	size_t count = 0;
-	for( node = parameterListElement->FirstChildElement(parameterName);
+	for( node = parameterListElement->FirstChild();
 		 node;
 		 node = node->NextSibling())
 	{
+	    nodeName = node->Value();
+	    if(nodeName.compare(parameterName) == 0)
+	    {
 		if(count == instanceIndex)
 		{
         node->ToElement()->LinkEndChild(parameterChild);
@@ -606,7 +620,10 @@ public:
 		{parameterChild->SetAttribute("type",getDataType(value.toString().c_str()));}
 		}
 		count++;
+		}
 	}
+
+
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -617,7 +634,7 @@ public:
 	If the parameter value is of integer type then specifying a double value will result
 	in the integral part of the value being stored.
  */
-    void setParameterValue(XML_dataType value, const std::string& parameterName, const std::string& parameterListName)
+    void setParameterValue(const XML_dataType& value, const std::string& parameterName, const std::string& parameterListName)
     {
     setParameterValue(value, parameterName.c_str(), parameterListName.c_str());
     }
@@ -627,7 +644,7 @@ public:
 	If the parameter value is of integer type then specifying a double value will result
 	in the integral part of the value being stored.
  */
-    void setParameterValue(XML_dataType value, const char* parameterName, const char* parameterListName)
+    void setParameterValue(const XML_dataType& value, const char* parameterName, const char* parameterListName)
     {
     abortIfNull();
 
@@ -638,48 +655,129 @@ public:
 	tinyxml2::XMLElement* parameterElement      = parameterListElement->FirstChildElement(parameterName);
 	checkParameter(parameterElement,parameterName,parameterListName,"setParameterValue(...)");
 
-    // Force a data conversion if necessary
+	setParameterValue(value,  parameterElement);
+    }
 
-    const char* inputDataType = getDataType(value.toString().c_str());
-    const char* dataType      = parameterElement->Attribute("type");
-
-	if(dataType == 0)
+/**Sets value of specified instance of the parameter.
+   Instance indexing starts at 0.
+*/
+    void setParameterInstanceValue(const XML_dataType& value, size_t instanceIndex,
+    const std::string& parameterName, const std::string& parameterListName)
 	{
-	dataType = getDataType(parameterElement->Attribute("value"));
-	parameterElement->SetAttribute("type",dataType);
-    }
-
-    std::string stringTemp;
-    if((dataType != 0)&&(strcmp(dataType,inputDataType) != 0))
-    {
-    if(strcmp(dataType,"string") == 0) parameterElement->SetAttribute("value", XML_dataType(std::string(value)).toString().c_str());
-    if(strcmp(dataType,"bool") == 0)   parameterElement->SetAttribute("value", XML_dataType(bool(value)).toString().c_str());
-    if(strcmp(dataType,"long") == 0)   parameterElement->SetAttribute("value", XML_dataType(long(value)).toString().c_str());
-    if(strcmp(dataType,"int") == 0)    parameterElement->SetAttribute("value", XML_dataType(int(value)).toString().c_str());
-    if(strcmp(dataType,"float") == 0)  parameterElement->SetAttribute("value", XML_dataType(float(value)).toString().c_str());
-    if(strcmp(dataType,"double") == 0) parameterElement->SetAttribute("value", XML_dataType(double(value)).toString().c_str());
-    if((strcmp(dataType,"bool") == 0)&&(strcmp(inputDataType,"string")== 0))
-    {
-    stringTemp = (std::string)(XML_dataType(std::string(value)).toString());
-	std::transform(stringTemp.begin(), stringTemp.end(), stringTemp.begin(), [](unsigned char c){return  static_cast<char>(std::toupper(c)); });
-	if(stringTemp.compare("FALSE") == 0)  parameterElement->SetAttribute("value","false");
-    if(stringTemp.compare("TRUE")  == 0)  parameterElement->SetAttribute("value","true");
-    if(stringTemp.compare("NO")    == 0)  parameterElement->SetAttribute("value","false");
-	if(stringTemp.compare("YES")   == 0)  parameterElement->SetAttribute("value","true");
-    }
-    }
-    else
-    {
-    parameterElement->SetAttribute("value", value.toString().c_str());
-    if(dataType == 0)
-    {
-    if(value.isString())
-	{parameterElement->SetAttribute("type","string");}
-	else
-	{parameterElement->SetAttribute("type",getDataType(value.toString().c_str()));}
+	return setParameterInstanceValue(value, instanceIndex, parameterName.c_str(), parameterListName.c_str());
 	}
-    }
-    }
+
+/**Returns value of specified instance of the parameter.
+   Instance indexing starts at 0.
+*/
+	void setParameterInstanceValue(const XML_dataType& value, size_t instanceIndex,const char* parameterName,
+	const char* parameterListName)
+	{
+    abortIfNull();
+	tinyxml2::XMLHandle  docHandle(parameterArrayDocPtr->RootElement());
+    tinyxml2::XMLElement* parameterListElement  = docHandle.FirstChildElement(parameterListName).ToElement();
+    checkParameterList(parameterListElement,parameterListName,"setParameterInstanceValue(...)");
+
+	tinyxml2::XMLElement* parameterElement      = parameterListElement->FirstChildElement(parameterName);
+	checkParameter(parameterElement,parameterName,parameterListName,"setParameterInstanceValue(...)");
+
+	checkInstanceIndex(instanceIndex,parameterName,parameterListName,"setParameterInstanceValue(...)");
+
+    XML_dataType returnValue;
+	tinyxml2::XMLNode* node;
+    std::string nodeName;
+
+	size_t count = 0;
+	for( node = parameterListElement->FirstChild();
+		 node;
+		 node = node->NextSibling())
+	{
+	    nodeName = node->Value();
+	    if(nodeName.compare(parameterName) == 0)
+	    {
+		if(count == instanceIndex)
+		{
+			if(node->ToElement())
+			{
+			setParameterValue(value,node->ToElement());
+			return;
+			}
+		}
+		count++;
+		}
+	}
+	}
+
+/**Sets the value of specified instance of the parameter.
+*/
+    void setParameterInstanceValue(const XML_dataType& value, const std::string& instanceName,
+    const std::string& parameterName, const std::string& parameterListName)
+	{
+	return setParameterInstanceValue(value,instanceName.c_str(), parameterName.c_str(), parameterListName.c_str());
+	}
+
+/**Sets value of specified instance of the parameter.
+*/
+	void setParameterInstanceValue(const XML_dataType& value, const char* instanceName,
+	const char* parameterName, const char* parameterListName)
+	{
+    abortIfNull();
+	tinyxml2::XMLHandle  docHandle(parameterArrayDocPtr->RootElement());
+    tinyxml2::XMLElement* parameterListElement  = docHandle.FirstChildElement(parameterListName).ToElement();
+    checkParameterList(parameterListElement,parameterListName,"getParameterInstanceValue(...)");
+
+	tinyxml2::XMLElement* parameterElement      = parameterListElement->FirstChildElement(parameterName);
+	checkParameter(parameterElement,parameterName,parameterListName,"getParameterInstanceValue(...)");
+
+    XML_dataType returnValue;
+
+	tinyxml2::XMLNode*    node;
+	tinyxml2::XMLElement* parameterChild;
+	std::string           nodeName;
+
+    const char* p = nullptr;
+	const char** stringData = &p;
+	std::string instanceString(instanceName);
+	std::string indexString;
+
+	for( node = parameterListElement->FirstChild();
+		 node;
+		 node = node->NextSibling() )
+	{
+	    nodeName = node->Value();
+	    if(nodeName.compare(parameterName)== 0)
+	    {
+		if(node->FirstChildElement("name"))
+		{
+		    parameterChild = node->FirstChildElement("name")->ToElement();
+			indexString.clear();
+		    if(parameterChild->QueryStringAttribute("value",stringData) == tinyxml2::XML_SUCCESS){indexString = stringData[0];}
+		    if(instanceString.compare(indexString) == 0)
+		    {
+		    setParameterValue(value, node->ToElement());
+		    return;
+		    }
+		}
+		}
+	}
+
+    // Error if value was not set
+
+	errorFlag   = true;
+	errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+	errorMessage.append("XML_ParameterListArray Class Error \n");
+	errorMessage.append("    getParameterInstanceValue(...)\n");
+	errorMessage.append("Parameter instance does not exist.\n");
+	errorMessage.append("ParameterList           : ");
+	errorMessage.append(parameterListName);
+	errorMessage.append("\nParameter               : ");
+	errorMessage.append(parameterName);
+	errorMessage.append("\nParameter instance Name : ");
+	errorMessage.append(instanceString);
+	errorMessage.append("Parameter Instance : ");
+
+	if(abortOnErrorFlag){checkErrorAndAbort();}
+	}
 
 /** Sets the specified string parameter value.
 
@@ -744,7 +842,7 @@ public:
 	If the parameter value is of integer type then specifying a double value will result
 	in the integral part of the value being stored.
  */
-    void setParameter(XML_dataType value, const std::string& parameterName, const std::string& parameterListName)
+    void setParameter(const XML_dataType& value, const std::string& parameterName, const std::string& parameterListName)
     {
     setParameterValue(value, parameterName.c_str(), parameterListName.c_str());
     }
@@ -755,7 +853,7 @@ public:
 	If the parameter value is of integer type then specifying a double value will result
 	in the integral part of the value being stored.
  */
-    void setParameter(XML_dataType value, const char* parameterName, const char* parameterListName)
+    void setParameter(const XML_dataType& value, const char* parameterName, const char* parameterListName)
     {
     setParameterValue(value,parameterName,parameterListName);
     }
@@ -790,7 +888,7 @@ public:
     }
 
 /// Sets the value of the child parameter of the parameter specified by parameterName and parameterListName
-    void setParameterChildValue(XML_dataType value,const char* childParameter,
+    void setParameterChildValue(const XML_dataType& value,const char* childParameter,
     const char* parameterName, const char* parameterListName)
     {
     abortIfNull();
@@ -855,7 +953,7 @@ public:
 /** Sets the value of the child of the specified instance of the parameter.
     Instance indexing starts at 0.
 */
-    void setParameterInstanceChildValue(XML_dataType value,int instanceIndex,const std::string& childParameter,
+    void setParameterInstanceChildValue(const XML_dataType& value,int instanceIndex,const std::string& childParameter,
     const std::string& parameterName, const std::string& parameterListName)
     {
     setParameterInstanceChildValue(value,instanceIndex,childParameter.c_str(),parameterName.c_str(), parameterListName.c_str());
@@ -864,7 +962,7 @@ public:
 /** Sets the value of the child of the specified instance of the parameter.
     Instance indexing starts at 0.
 */
-    void setParameterInstanceChildValue(XML_dataType value,int instanceIndex,const char* childParameter,
+    void setParameterInstanceChildValue(const XML_dataType& value,int instanceIndex,const char* childParameter,
     const char* parameterName, const char* parameterListName)
     {
     abortIfNull();
@@ -875,90 +973,49 @@ public:
 	tinyxml2::XMLElement* parameterElement      = parameterListElement->FirstChildElement(parameterName);
 	checkParameter(parameterElement,parameterName,parameterListName,"setParameterInstanceChildValue(...)");
 
-    long instanceCount = getParameterInstanceCount(parameterName,parameterListName);
-    if(instanceCount-1 < instanceIndex)
-    {
-    errorFlag = true;
-	errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
-	errorMessage.append("XML_ParameterListArray Class Error \n");
-	errorMessage.append("void setParameterInstanceChildValue(...)\n");
-	errorMessage.append("Parameter instance does not exist.\n\n");
-	errorMessage.append("ParameterList  : ");
-	errorMessage.append(parameterListName);
-	errorMessage.append("\nParameter      : ");
-	errorMessage.append(parameterName);
-	errorMessage.append("\nInstance index : ");
-	errorMessage.append(std::to_string(instanceIndex));
-	errorMessage.append("\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
-	errorMessage.append("\n");
-    }
+	checkInstanceIndex(instanceIndex,parameterName,parameterListName,"setParameterInstanceValue(...)");
 
 	tinyxml2::XMLNode* node;
+	std::string    nodeName;
 
     errorFlag = true;
 
-    const char* inputDataType;
-    const char* dataType;
-
 	long count = 0;
-	for( node = parameterListElement->FirstChildElement(parameterName);
+	for( node = parameterListElement->FirstChild();
 		 node;
 		 node = node->NextSibling() )
 	{
+	    nodeName = node->Value();
+	    if(nodeName.compare(parameterName) == 0)
+	    {
 		if(count == instanceIndex)
 		{
 			if(node->FirstChildElement(childParameter))
 			{
-
-			inputDataType = getDataType(value.toString().c_str());
-            dataType      = (node->FirstChildElement(childParameter))->ToElement()->Attribute("type");
-		    if((dataType != 0)&&(strcmp(dataType,inputDataType) != 0))
-            {
-                if(strcmp(dataType,"string") == 0)  (node->FirstChildElement(childParameter))->ToElement()->SetAttribute("value", XML_dataType(std::string(value)).toString().c_str());
-                if(strcmp(dataType,"bool") == 0)    (node->FirstChildElement(childParameter))->ToElement()->SetAttribute("value", XML_dataType(bool(value)).toString().c_str());
-		    	if(strcmp(dataType,"long") == 0)    (node->FirstChildElement(childParameter))->ToElement()->SetAttribute("value", XML_dataType(long(value)).toString().c_str());
-		    	if(strcmp(dataType,"int") == 0)     (node->FirstChildElement(childParameter))->ToElement()->SetAttribute("value", XML_dataType(int(value)).toString().c_str());
-		    	if(strcmp(dataType,"float") == 0)   (node->FirstChildElement(childParameter))->ToElement()->SetAttribute("value", XML_dataType(float(value)).toString().c_str());
-		    	if(strcmp(dataType,"double") == 0)  (node->FirstChildElement(childParameter))->ToElement()->SetAttribute("value", XML_dataType(double(value)).toString().c_str());
-            }
-		    else
-		    {
-		    	(node->FirstChildElement(childParameter))->ToElement()->SetAttribute("value", value.toString().c_str()); // original
-
-		    	if(dataType == 0)
-		    	{
-		    		if(value.isString())
-		    		{(node->FirstChildElement(childParameter))->ToElement()->SetAttribute("type","string");}
-		    		else
-		    		{(node->FirstChildElement(childParameter))->ToElement()->SetAttribute("type",getDataType(value.toString().c_str()));}
-		    	}
-
-		    }
-
-			errorFlag = false;
+			setParameterValue(value, node->FirstChildElement(childParameter)->ToElement());
+			return;
 			}
-			else
-			{
-			errorFlag = true;
-			errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
-			errorMessage.append("XML_ParameterListArray Class Error \n");
-			errorMessage.append("void setParameterInstanceChildValue(...)\n");
-			errorMessage.append("Parameter child value specified by childParameter does not exist.\n\n");
-			errorMessage.append("ParameterList   : ");
-			errorMessage.append(parameterListName);
-			errorMessage.append("\nParameter       : ");
-			errorMessage.append(parameterName);
-			errorMessage.append("\nInstance index  : ");
-			errorMessage.append(std::to_string(instanceIndex));
-			errorMessage.append("\nParameter child : ");
-			errorMessage.append(childParameter);
-			errorMessage.append("\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
-			errorMessage.append("\n");
-			}
-			break;
-		}
-		count++;
-	}
+        }
+        count++;
+        }
+    }
+
+	errorFlag = true;
+	errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+	errorMessage.append("XML_ParameterListArray Class Error \n");
+	errorMessage.append("void setParameterInstanceChildValue(...)\n");
+	errorMessage.append("Parameter child value specified by childParameter does not exist.\n\n");
+	errorMessage.append("ParameterList   : ");
+	errorMessage.append(parameterListName);
+	errorMessage.append("\nParameter       : ");
+	errorMessage.append(parameterName);
+	errorMessage.append("\nInstance index  : ");
+	errorMessage.append(std::to_string(instanceIndex));
+	errorMessage.append("\nParameter child : ");
+	errorMessage.append(childParameter);
+	errorMessage.append("\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+	errorMessage.append("\n");
+
 	if(abortOnErrorFlag){checkErrorAndAbort();}
 	}
 
@@ -966,7 +1023,7 @@ public:
     The parameter instance is identified by the value of the <name> child
     of the parameter.
 */
-	void setParameterInstanceChildValue(XML_dataType value,const std::string& instanceName,const std::string& childParameter,
+	void setParameterInstanceChildValue(const XML_dataType& value,const std::string& instanceName,const std::string& childParameter,
     const std::string& parameterName, const std::string& parameterListName)
     {
     setParameterInstanceChildValue(value,instanceName.c_str(),childParameter.c_str(),
@@ -977,12 +1034,9 @@ public:
     The parameter instance is identified by the value of the <name> child
     of the parameter.
 */
-	void setParameterInstanceChildValue(XML_dataType value,const char* instanceName,const char* childParameter,
+	void setParameterInstanceChildValue(const XML_dataType& value,const char* instanceName,const char* childParameter,
     const char* parameterName, const char* parameterListName)
     {
-
-    // ToDo: change this so name is an attribute of the parameter intance and not a child tag
-
     abortIfNull();
 	tinyxml2::XMLHandle  docHandle(parameterArrayDocPtr->RootElement());
     tinyxml2::XMLElement* parameterListElement  = docHandle.FirstChildElement(parameterListName).ToElement();
@@ -993,24 +1047,22 @@ public:
 
 
     tinyxml2::XMLElement* parameterChild;
-	tinyxml2::XMLNode* node;
+	tinyxml2::XMLNode*    node;
+	std::string       nodeName;
 
     std::string instanceString(instanceName);
     std::string indexString;
 
-    const char* inputDataType;
-    const char* dataType;
-
     const char*p = nullptr;
     const char** stringData = &p;
 
-    bool instanceError = true;
-    errorFlag          = true;
-
-	for( node = parameterElement;
+	for( node = parameterListElement->FirstChild();
 		 node;
 		 node = node->NextSibling() )
 	{
+	    nodeName = node->Value();
+	    if(nodeName.compare(parameterName) == 0)
+	    {
 		if(node->FirstChildElement("name"))
 		{
 		    parameterChild = node->FirstChildElement("name")->ToElement();
@@ -1019,88 +1071,41 @@ public:
 
 		    if(std::string(indexString).compare(instanceString) == 0)
 		    {
-		    instanceError = false;
-			if(node->FirstChildElement(childParameter))
-			{
-		    inputDataType = getDataType(value.toString().c_str());
-            dataType      = (node->FirstChildElement(childParameter))->ToElement()->Attribute("type");
-		    if((dataType != 0)&&(strcmp(dataType,inputDataType) != 0))
-            {
-                if(strcmp(dataType,"string") == 0)  (node->FirstChildElement(childParameter))->ToElement()->SetAttribute("value", XML_dataType(std::string(value)).toString().c_str());
-                if(strcmp(dataType,"bool") == 0)    (node->FirstChildElement(childParameter))->ToElement()->SetAttribute("value", XML_dataType(bool(value)).toString().c_str());
-		    	if(strcmp(dataType,"long") == 0)    (node->FirstChildElement(childParameter))->ToElement()->SetAttribute("value", XML_dataType(long(value)).toString().c_str());
-		    	if(strcmp(dataType,"int") == 0)     (node->FirstChildElement(childParameter))->ToElement()->SetAttribute("value", XML_dataType(int(value)).toString().c_str());
-		    	if(strcmp(dataType,"float") == 0)   (node->FirstChildElement(childParameter))->ToElement()->SetAttribute("value", XML_dataType(float(value)).toString().c_str());
-		    	if(strcmp(dataType,"double") == 0)  (node->FirstChildElement(childParameter))->ToElement()->SetAttribute("value", XML_dataType(double(value)).toString().c_str());
-            }
-		    else
-		    {
-			(node->FirstChildElement(childParameter))->ToElement()->SetAttribute("value", value.toString().c_str()); // original
-
-			if(dataType == 0)
-		    {
-		    	if(value.isString())
-		    	{(node->FirstChildElement(childParameter))->ToElement()->SetAttribute("type","string");}
-		    	else
-		    	{(node->FirstChildElement(childParameter))->ToElement()->SetAttribute("type",getDataType(value.toString().c_str()));}
+		    	if(node->FirstChildElement(childParameter))
+		    	{
+		    		setParameterValue(value, node->FirstChildElement(childParameter)->ToElement());
+		    		return;
+		    	}
 		    }
-
-		    }
-			errorFlag = false;
-			}
-			else
-			{
-			errorFlag = true;
-			errorMessage.append("\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
-			errorMessage.append("XML_ParameterListArray Class Error \n");
-			errorMessage.append("void setParameterInstanceChildValue(...)\n");
-			errorMessage.append("Parameter child value specified by childParameter does not exist.\n\n");
-			errorMessage.append("ParameterList           : ");
-			errorMessage.append(parameterListName);
-			errorMessage.append("\nParameter               : ");
-			errorMessage.append(parameterName);
-		    errorMessage.append("\nParameter instance Name : ");
-			errorMessage.append(instanceString);
-			errorMessage.append("\nParameter child         : ");
-			errorMessage.append(childParameter);
-			errorMessage.append("\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
-			errorMessage.append("\n");
-			}
-			break;
-		    }
-	}
-	}
-
-	if(instanceError)
-	{
-			errorFlag = true;
-			errorMessage.append("\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
-			errorMessage.append("XML_ParameterListArray Class Error \n");
-			errorMessage.append("void setParameterInstanceChildValue(...)\n");
-			errorMessage.append("Parameter instance does not exist.\n\n");
-			errorMessage.append("ParameterList           : ");
-			errorMessage.append(parameterListName);
-			errorMessage.append("\nParameter               : ");
-			errorMessage.append(parameterName);
-		    errorMessage.append("\nParameter instance Name : ");
-			errorMessage.append(instanceString);
-			errorMessage.append("\nParameter child         : ");
-			errorMessage.append(childParameter);
-			errorMessage.append("\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
-			errorMessage.append("\n");
-	}
+		}}
+     }
+	errorFlag = true;
+	errorMessage.append("\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+	errorMessage.append("XML_ParameterListArray Class Error \n");
+	errorMessage.append("void setParameterInstanceChildValue(...)\n");
+	errorMessage.append("Parameter child value specified by childParameter does not exist.\n\n");
+	errorMessage.append("ParameterList           : ");
+	errorMessage.append(parameterListName);
+	errorMessage.append("\nParameter               : ");
+	errorMessage.append(parameterName);
+	errorMessage.append("\nParameter instance Name : ");
+	errorMessage.append(instanceString);
+	errorMessage.append("\nParameter child         : ");
+	errorMessage.append(childParameter);
+	errorMessage.append("\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+	errorMessage.append("\n");
 
 	if(abortOnErrorFlag){checkErrorAndAbort();}
 	}
 
 /// Sets the corresponding parameter if it exists, otherwise a null operation.
-    void setParameterOrIgnore(XML_dataType value, const std::string& parameterName, std::string& parameterListName)
+    void setParameterOrIgnore(const XML_dataType& value, const std::string& parameterName, std::string& parameterListName)
     {
         setParameterOrIgnore(value,  parameterName.c_str(), parameterListName.c_str());
     }
 
 /// Sets the corresponding parameter if it exists, otherwise a null operation.
-    void setParameterOrIgnore(XML_dataType value, const char* parameterName, const char* parameterListName)
+    void setParameterOrIgnore(const XML_dataType& value, const char* parameterName, const char* parameterListName)
     {
     	if(this->isParameter(parameterName, parameterListName))
     	{
@@ -1150,6 +1155,78 @@ public:
 	return returnValue;
 	}
 
+/** Sets the specified string parameter value.
+
+	This member function avoids the creation of a copy of the string when extracting from the XML data
+ */
+    std::string getStringParameterValue(const std::string& parameterName, const std::string& parameterListName)
+    {
+    return getStringParameterValue(parameterName.c_str(), parameterListName.c_str());
+    }
+
+/** Sets the specified string parameter value.
+
+	This member function avoids the creation of a copy of the value string before insertion into the XML data structure
+ */
+    std::string getStringParameterValue(const char* parameterName, const char* parameterListName)
+    {
+    abortIfNull();
+	tinyxml2::XMLHandle  docHandle(parameterArrayDocPtr->RootElement());
+    tinyxml2::XMLElement* parameterListElement  = docHandle.FirstChildElement(parameterListName).ToElement();
+    checkParameterList(parameterListElement,parameterListName,"setStringParameterValue(...)");
+
+	tinyxml2::XMLElement* parameterElement      = parameterListElement->FirstChildElement(parameterName);
+	checkParameter(parameterElement,parameterName,parameterListName,"setStringParameterValue(...)");
+
+    const char* inputDataType = "string";
+    const char* dataType      = parameterElement->Attribute("type");
+
+    // Set data type to be string if parameter is untyped
+
+	if(dataType == 0)
+	{
+	dataType = "string";
+	parameterElement->SetAttribute("type",dataType);
+    }
+
+    const char* p           = nullptr;
+    const char** stringData = &p;
+    if(strcmp(dataType,inputDataType) != 0)
+    {
+    errorFlag = true;
+	errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+	errorMessage.append("XML_ParameterListArray Class Error \n");
+	errorMessage.append("getStringParameterValue(...)\n\n");
+	errorMessage.append("Parameter being extracted is not of string type.\n\n");
+	errorMessage.append("Parameter     : ");
+	errorMessage.append(parameterName);
+    errorMessage.append("\nParameterList : ");
+	errorMessage.append(parameterListName);
+	errorMessage.append("\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+	errorMessage.append("\n");
+    }
+
+	if(parameterElement->QueryStringAttribute("value", stringData) == tinyxml2::XML_SUCCESS)
+	{
+		return stringData[0];
+	}
+
+    errorFlag = true;
+	errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+	errorMessage.append("XML_ParameterListArray Class Error \n");
+	errorMessage.append("getStringParameterValue(...)\n\n");
+	errorMessage.append("Error reading string data.\n\n");
+	errorMessage.append("Parameter     : ");
+	errorMessage.append(parameterName);
+    errorMessage.append("\nParameterList : ");
+	errorMessage.append(parameterListName);
+	errorMessage.append("\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+	errorMessage.append("\n");
+
+    if(abortOnErrorFlag){checkErrorAndAbort();}
+    return stringData[0];
+    }
+
 /** This routine returns the parameter value as an XML_dataType if the parameter exists,
     otherwise it returns the defaultValue specified.
 
@@ -1158,7 +1235,7 @@ public:
 
     String data requires an explicit case before assignment.
 */
-   XML_dataType getParameterValueOrDefault(const std::string& parameterName, const std::string& parameterListName, XML_dataType defaultValue ) const
+   XML_dataType getParameterValueOrDefault(const std::string& parameterName, const std::string& parameterListName,XML_dataType defaultValue) const
    {
    return getParameterValueOrDefault(parameterName.c_str(), parameterListName.c_str(),defaultValue);
    }
@@ -1181,6 +1258,120 @@ public:
    return defaultValue;
    }
 
+/**Returns value of specified instance of the parameter.
+   Instance indexing starts at 0.
+*/
+    XML_dataType getParameterInstanceValue(const std::string& instanceName,const std::string& parameterName, const std::string& parameterListName) const
+	{
+	return getParameterInstanceValue(instanceName.c_str(), parameterName.c_str(), parameterListName.c_str());
+	}
+
+/**Returns value of specified instance of the parameter.
+*/
+	XML_dataType getParameterInstanceValue(const char* instanceName,const char* parameterName, const char* parameterListName) const
+	{
+    abortIfNull();
+	tinyxml2::XMLHandle  docHandle(parameterArrayDocPtr->RootElement());
+    tinyxml2::XMLElement* parameterListElement  = docHandle.FirstChildElement(parameterListName).ToElement();
+    checkParameterList(parameterListElement,parameterListName,"getParameterInstanceValue(...)");
+
+	tinyxml2::XMLElement* parameterElement      = parameterListElement->FirstChildElement(parameterName);
+	checkParameter(parameterElement,parameterName,parameterListName,"getParameterInstanceValue(...)");
+
+    XML_dataType returnValue;
+
+	tinyxml2::XMLNode*    node;
+	tinyxml2::XMLElement* parameterChild;
+
+	std::string  nodeName;
+
+    const char* p = nullptr;
+	const char** stringData = &p;
+	std::string instanceString(instanceName);
+	std::string indexString;
+	for( node = parameterListElement->FirstChild();
+		 node;
+		 node = node->NextSibling() )
+	{
+	    nodeName = node->Value();
+	    if(nodeName.compare(parameterName) == 0)
+	    {
+		if(node->FirstChildElement("name"))
+		{
+		    parameterChild = node->FirstChildElement("name")->ToElement();
+			indexString.clear();
+		    if(parameterChild->QueryStringAttribute("value",stringData) == tinyxml2::XML_SUCCESS){indexString = stringData[0];}
+		    if(instanceString.compare(indexString) == 0)
+		    {
+		    return returnValue = getParameterValue(node->ToElement(),parameterName,  parameterListName);
+		    }
+		}}
+	}
+	errorFlag   = true;
+	errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+	errorMessage.append("XML_ParameterListArray Class Error \n");
+	errorMessage.append("    getParameterInstanceValue(...)\n");
+	errorMessage.append("Parameter instance does not exist.\n");
+	errorMessage.append("ParameterList           : ");
+	errorMessage.append(parameterListName);
+	errorMessage.append("\nParameter               : ");
+	errorMessage.append(parameterName);
+	errorMessage.append("\nParameter instance Name : ");
+	errorMessage.append(instanceString);
+	errorMessage.append("Parameter Instance : ");
+
+	if(abortOnErrorFlag){checkErrorAndAbort();}
+	return returnValue;
+	}
+
+/**Returns value of specified instance of the parameter.
+   Instance indexing starts at 0.
+*/
+    XML_dataType getParameterInstanceValue(size_t instanceIndex,const std::string& parameterName, const std::string& parameterListName) const
+	{
+	return getParameterInstanceValue(instanceIndex, parameterName.c_str(), parameterListName.c_str());
+	}
+
+/**Returns value of specified instance of the parameter.
+   Instance indexing starts at 0.
+*/
+	XML_dataType getParameterInstanceValue(size_t instanceIndex,const char* parameterName, const char* parameterListName) const
+	{
+    abortIfNull();
+	tinyxml2::XMLHandle  docHandle(parameterArrayDocPtr->RootElement());
+    tinyxml2::XMLElement* parameterListElement  = docHandle.FirstChildElement(parameterListName).ToElement();
+    checkParameterList(parameterListElement,parameterListName,"getParameterInstanceValue(...)");
+
+	tinyxml2::XMLElement* parameterElement      = parameterListElement->FirstChildElement(parameterName);
+	checkParameter(parameterElement,parameterName,parameterListName,"getParameterInstanceValue(...)");
+
+	checkInstanceIndex(instanceIndex,parameterName,parameterListName,"getParameterInstanceValue(...)");
+
+    XML_dataType returnValue;
+
+	tinyxml2::XMLNode* node;
+	std::string    nodeName;
+
+	size_t count = 0;
+	for( node = parameterListElement->FirstChild();
+		 node;
+		 node = node->NextSibling() )
+	{
+	    nodeName = node->Value();
+	    if(nodeName.compare(parameterName) == 0)
+	    {
+		if(count == instanceIndex)
+		{
+			if(node->ToElement())
+			{
+			returnValue = getParameterValue(node->ToElement(),parameterName,  parameterListName);
+			}
+		}
+		count++;
+		}
+	}
+	return returnValue;
+	}
 
 /** Determines if the specified instance of the parameter has the designated child parameter.
     Instance indexing starts at 0.
@@ -1206,14 +1397,19 @@ public:
 	tinyxml2::XMLElement* parameterElement      = parameterListElement->FirstChildElement(parameterName);
 	checkParameter(parameterElement,parameterName,parameterListName,"isParameterInstanceChildValue(...)");
 
+	checkInstanceIndex(instanceIndex,parameterName,parameterListName,"getParameterInstanceValue(...)");
+
 	tinyxml2::XMLNode* node;
+	std::string  nodeName;
 
 	long count = 0;
-	for( node = parameterElement;
+	for( node = parameterListElement->FirstChild();
 		 node;
 		 node = node->NextSibling() )
 	{
-
+        nodeName = node->Value();
+        if(nodeName.compare(parameterName) == 0)
+        {
 	    if(count == instanceIndex)
 	    {
 	    	if(node->FirstChildElement(childParameter))
@@ -1222,6 +1418,7 @@ public:
 	    	{return false;}
 	    }
 	    count++;
+	    }
 	}
     return false;
 	}
@@ -1237,7 +1434,6 @@ public:
     bool isParameterInstanceChildValue(const char* instanceName,const char* childParameter,
     const char* parameterName, const char* parameterListName) const
 	{
-
     abortIfNull();
 
 	tinyxml2::XMLHandle  docHandle(parameterArrayDocPtr->RootElement());
@@ -1248,31 +1444,32 @@ public:
 	tinyxml2::XMLElement* parameterElement      = parameterListElement->FirstChildElement(parameterName);
     checkParameter(parameterElement,parameterName,parameterListName,"isParameterInstanceChildValue(...)");
 
-
     tinyxml2::XMLElement* parameterChild;
 	tinyxml2::XMLNode* node;
+	std::string    nodeName;
 
 	const char* p = nullptr;
 	const char** stringData = &p;
 	std::string instanceString(instanceName);
-	std::string indexString(instanceName);
+	std::string indexString;
 
-	for( node = parameterElement;
+	for( node = parameterListElement->FirstChild();
 		 node;
 		 node = node->NextSibling() )
 	{
+	    nodeName = node->Value();
+	    if(nodeName.compare(parameterName) == 0)
+	    {
 		if(node->FirstChildElement("name"))
 		{
 		    parameterChild = node->FirstChildElement("name")->ToElement();
-		    parameterChild->QueryStringAttribute("value",stringData);
-
 		    indexString.clear();
 		    if(parameterChild->QueryStringAttribute("value",stringData) == tinyxml2::XML_SUCCESS){indexString = stringData[0];}
 		    if(instanceString.compare(indexString) == 0)
 		    {
 		    if(node->FirstChildElement(childParameter)){return true;}
 		    }
-	    }
+	    }}
 	}
     return false;
 	}
@@ -1387,44 +1584,30 @@ public:
 	tinyxml2::XMLElement* parameterElement      = parameterListElement->FirstChildElement(parameterName);
     checkParameter(parameterElement,parameterName,parameterListName,"getParameterInstanceChildValue(...)");
 
+	checkInstanceIndex(instanceIndex,parameterName,parameterListName,"getParameterInstanceValue(...)");
 
 	tinyxml2::XMLNode* node;
+	std::string    nodeName;
 	XML_dataType returnValue;
 
 	long count = 0;
-	for( node = parameterListElement->FirstChildElement(parameterName);
+	for( node = parameterListElement->FirstChild();
 		 node;
 		 node = node->NextSibling() )
 	{
+	    nodeName = node->Value();
+	    if(nodeName.compare(parameterName) == 0)
+	    {
 	    if(count == instanceIndex)
 	    {
 	    	if(node->FirstChildElement(childParameter))
 	    	{
-	    	returnValue =  getParameterValue(node->FirstChildElement(childParameter)->ToElement(),parameterName,  parameterListName);
-	    	}
-	    	else
-	    	{
-	    	errorFlag   = true;
-	     	errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
-	     	errorMessage.append("XML_ParameterListArray Class Error \n");
-	     	errorMessage.append("    getParameterInstanceChildValue(...)\n");
-			errorMessage.append("Parameter instance does not exist.\n");
-			errorMessage.append("ParameterList           : ");
-			errorMessage.append(parameterListName);
-			errorMessage.append("\nParameter               : ");
-			errorMessage.append(parameterName);
-		    errorMessage.append("\nParameter instance Name : ");
-			errorMessage.append(std::to_string(instanceIndex));
-			errorMessage.append("\nParameter child         : ");
-			errorMessage.append(childParameter);
+	    	return  getParameterValue(node->FirstChildElement(childParameter)->ToElement(),parameterName,  parameterListName);
 	    	}
 	    }
 	    count++;
+	    }
 	}
-
-
-	if((returnValue.isNull())&&(not errorFlag))
-	{
 	errorFlag = true;
 	errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
 	errorMessage.append("XML_ParameterListArray Class Error \n");
@@ -1434,11 +1617,10 @@ public:
 	errorMessage.append(parameterListName);
 	errorMessage.append("\nParameter               : ");
 	errorMessage.append(parameterName);
-	errorMessage.append("\nParameter instance Name : ");
+	errorMessage.append("\nParameter instance index : ");
 	errorMessage.append(std::to_string(instanceIndex));
 	errorMessage.append("\nParameter child         : ");
 	errorMessage.append(childParameter);
-	}
 
 	if(abortOnErrorFlag){checkErrorAndAbort();}
 	return returnValue;
@@ -1517,43 +1699,38 @@ public:
 
     tinyxml2::XMLElement* parameterChild;
 	tinyxml2::XMLNode* node;
+	std::string    nodeName;
 
     std::string instanceString(instanceName);
     std::string indexString;
 
-    errorFlag          = false;
-    bool instanceError = true;
 
     const char*p = nullptr;
     const char** stringData = &p;
-	for( node = parameterElement;
+	for( node = parameterListElement->FirstChild();
 		 node;
 		 node = node->NextSibling() )
 	{
+		nodeName = node->Value();
+	    if(nodeName.compare(parameterName) == 0)
+	    {
 		if(node->FirstChildElement("name"))
 		{
 		    parameterChild = node->FirstChildElement("name")->ToElement();
-
 		    indexString.clear();
 		    if(parameterChild->QueryStringAttribute("value",stringData) == tinyxml2::XML_SUCCESS){indexString = stringData[0];}
 		    if(instanceString.compare(indexString) == 0)
 		    {
-		    instanceError = false;
-		    if(node->FirstChildElement(childParameter))
-		    {
-		    return getParameterValue(node->FirstChildElement(childParameter)->ToElement(),parameterName,  parameterListName);
+		    	if(node->FirstChildElement(childParameter))
+		    	{
+		    		return getParameterValue(node->FirstChildElement(childParameter)->ToElement(),parameterName,  parameterListName);
+		    	}
 		    }
-		    else
-		    {
-		    errorFlag = true;
-		    }
-		    }
+	     }
 	     }
 	}
 
 
-    if(instanceError || errorFlag)
-    {
     errorFlag = true;
     errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
     errorMessage.append("XML_ParameterListArray Class Error \n");
@@ -1572,7 +1749,7 @@ public:
     errorMessage.append(instanceString);
     errorMessage.append("\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
     errorMessage.append("\n");
-	}
+
 	if(abortOnErrorFlag){checkErrorAndAbort();}
 	return returnValue;
 	}
@@ -1769,7 +1946,6 @@ public:
 	{
 		if(not node->ToComment())
         {
-        std::cout << "node value " <<  node->Value() << std::endl;
         typeString = getParameterTypeName(node->ToElement(),node->Value(),parameterListName);
         paramTypeNames[node->Value()] =  typeString;
         }
@@ -1993,6 +2169,89 @@ public:
     }
     if(abortOnErrorFlag){checkErrorAndAbort();}
 	}
+
+	void checkInstanceIndex(size_t instanceIndex, const char* parameterName,const char* parameterListName,
+    const std::string& routineName = "") const
+	{
+	size_t instanceCount = getParameterInstanceCount(parameterName,parameterListName);
+	if(instanceCount-1 < instanceIndex)
+	{
+		errorFlag = true;
+		errorMessage.append("\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+		errorMessage.append("XML_ParameterListArray Class Error \n");
+		if(not routineName.empty())
+		{
+			errorMessage.append("Member function : \n  ");
+			errorMessage.append(routineName);
+			errorMessage.append("\n");
+		}
+		errorMessage.append("Specified parameter instance does not exists.\n");
+		errorMessage.append("Specified parameterList name       : ");
+		errorMessage.append(parameterListName);
+		errorMessage.append("\nOffending parameter name           : ");
+		errorMessage.append(parameterName);
+		errorMessage.append("\nOffending parameter instance index : ");
+		errorMessage.append(std::to_string(instanceIndex));
+		errorMessage.append("\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+		errorMessage.append("\n");
+	}
+	if(abortOnErrorFlag){checkErrorAndAbort();}
+	}
+
+    void setParameterValue(const XML_dataType& value, tinyxml2::XMLElement* parameterElement)
+    {
+    abortIfNull();
+    tinyxml2::XMLHandle   docHandle(parameterArrayDocPtr->RootElement());
+
+    const char* inputDataType = getDataType(value.toString().c_str());
+    const char* dataType      = parameterElement->Attribute("type");
+
+    if(parameterElement->Attribute("value") != 0)
+    {
+    	// Set the data type if value is found and type not specified
+    	if(dataType == 0)
+    	{
+    		dataType = getDataType(parameterElement->Attribute("value"));
+    		parameterElement->SetAttribute("type",dataType);
+    	}
+    }
+    else
+    {
+        // Set the data type to the input data type
+    	parameterElement->SetAttribute("type",inputDataType);
+    }
+
+    std::string stringTemp;
+    if((dataType != 0)&&(strcmp(dataType,inputDataType) != 0))
+    {
+    if(strcmp(dataType,"string") == 0) parameterElement->SetAttribute("value", XML_dataType(std::string(value)).toString().c_str());
+    if(strcmp(dataType,"bool") == 0)   parameterElement->SetAttribute("value", XML_dataType(bool(value)).toString().c_str());
+    if(strcmp(dataType,"long") == 0)   parameterElement->SetAttribute("value", XML_dataType(long(value)).toString().c_str());
+    if(strcmp(dataType,"int") == 0)    parameterElement->SetAttribute("value", XML_dataType(int(value)).toString().c_str());
+    if(strcmp(dataType,"float") == 0)  parameterElement->SetAttribute("value", XML_dataType(float(value)).toString().c_str());
+    if(strcmp(dataType,"double") == 0) parameterElement->SetAttribute("value", XML_dataType(double(value)).toString().c_str());
+    if((strcmp(dataType,"bool") == 0)&&(strcmp(inputDataType,"string")== 0))
+    {
+    stringTemp = (std::string)(XML_dataType(std::string(value)).toString());
+	std::transform(stringTemp.begin(), stringTemp.end(), stringTemp.begin(), [](unsigned char c){return  static_cast<char>(std::toupper(c)); });
+	if(stringTemp.compare("FALSE") == 0)  parameterElement->SetAttribute("value","false");
+    if(stringTemp.compare("TRUE")  == 0)  parameterElement->SetAttribute("value","true");
+    if(stringTemp.compare("NO")    == 0)  parameterElement->SetAttribute("value","false");
+	if(stringTemp.compare("YES")   == 0)  parameterElement->SetAttribute("value","true");
+    }
+    }
+    else
+    {
+    parameterElement->SetAttribute("value", value.toString().c_str());
+    if(dataType == 0)
+    {
+    if(value.isString())
+	{parameterElement->SetAttribute("type","string");}
+	else
+	{parameterElement->SetAttribute("type",getDataType(value.toString().c_str()));}
+	}
+    }
+}
 
 	XML_dataType getParameterValue(const tinyxml2::XMLElement* parameter,const std::string& parameterName, const std::string& parameterListName) const
 	{

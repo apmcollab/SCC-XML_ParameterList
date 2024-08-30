@@ -75,12 +75,12 @@ public :
 //  conversions
 //
 	//operator const char*();
-	operator int();
-	operator bool();
-	operator long();
-	operator float();
-	operator double();
-	operator std::string();
+	operator int()         const;
+	operator bool()        const;
+	operator long()        const;
+	operator float()       const;
+	operator double()      const;
+	operator std::string() const;
 	friend std::istream&  operator >>(std::istream& in_stream, XML_dataType& A);
 //
 //  assignments
@@ -97,15 +97,15 @@ public :
 //
 //  Utility for output
 //
-    std::string toString();
+    std::string toString() const;
 
 //
 //  Typing mutatators
 //
 
-    bool   isString();
+    bool   isString() const;
     void   setType(int XML_dataTypeType);
-    int    getType();
+    int    getType() const;
     std::string getTypeAsString() const;
 
     int isNull(){if(getType() == TYPE_NULL){return 1;} return 0;}
