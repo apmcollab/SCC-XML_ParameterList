@@ -205,6 +205,13 @@ public:
     parameterFileName.clear();
     }
 
+/// Extracts the file name used to initialize the instance (if initialize from a file).
+	std::string getParameterFileName() const
+	{
+		return parameterFileName;
+	}
+
+
 /// Extracts the name of the root node; the name of the root node element.
     const char* getParameterListArrayName() const
     {
