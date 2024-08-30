@@ -353,18 +353,12 @@ public:
 	if(parameterElement == 0){return 0;}
 
 	tinyxml2::XMLNode* node;
-	std::string    nodeName;
-
 	size_t count = 0;
-	for( node = parameterListElement->FirstChild();
+	for( node = parameterListElement->FirstChildElement(parameterName);
 		 node;
-		 node = node->NextSibling())
+		 node = node->NextSiblingElement(parameterName))
 	{
-	    nodeName = node->Value();
-	    if(nodeName.compare(parameterName) == 0)
-	    {
-		if(not node->ToComment()){count++;}
-        }
+	    count++;
 	}
 	return count;
 	}
@@ -607,16 +601,12 @@ public:
 
     tinyxml2::XMLElement* parameterChild     = parameterArrayDocPtr->NewElement(parameterChildName);
 	tinyxml2::XMLNode*    node;
-	std::string nodeName;
 
 	size_t count = 0;
-	for( node = parameterListElement->FirstChild();
+	for( node = parameterListElement->FirstChildElement(parameterName);
 		 node;
-		 node = node->NextSibling())
+		 node = node->NextSiblingElement(parameterName))
 	{
-	    nodeName = node->Value();
-	    if(nodeName.compare(parameterName) == 0)
-	    {
 		if(count == instanceIndex)
 		{
         node->ToElement()->LinkEndChild(parameterChild);
@@ -627,7 +617,6 @@ public:
 		{parameterChild->SetAttribute("type",getDataType(value.toString().c_str()));}
 		}
 		count++;
-		}
 	}
 
 
@@ -692,16 +681,12 @@ public:
 
     XML_dataType returnValue;
 	tinyxml2::XMLNode* node;
-    std::string nodeName;
 
 	size_t count = 0;
-	for( node = parameterListElement->FirstChild();
+	for( node = parameterListElement->FirstChildElement(parameterName);
 		 node;
-		 node = node->NextSibling())
+		 node = node->NextSiblingElement(parameterName))
 	{
-	    nodeName = node->Value();
-	    if(nodeName.compare(parameterName) == 0)
-	    {
 		if(count == instanceIndex)
 		{
 			if(node->ToElement())
@@ -711,7 +696,7 @@ public:
 			}
 		}
 		count++;
-		}
+
 	}
 	}
 
@@ -740,20 +725,16 @@ public:
 
 	tinyxml2::XMLNode*    node;
 	tinyxml2::XMLElement* parameterChild;
-	std::string           nodeName;
 
     const char* p = nullptr;
 	const char** stringData = &p;
 	std::string instanceString(instanceName);
 	std::string indexString;
 
-	for( node = parameterListElement->FirstChild();
+	for( node = parameterListElement->FirstChildElement(parameterName);
 		 node;
-		 node = node->NextSibling() )
+		 node = node->NextSiblingElement(parameterName) )
 	{
-	    nodeName = node->Value();
-	    if(nodeName.compare(parameterName)== 0)
-	    {
 		if(node->FirstChildElement("name"))
 		{
 		    parameterChild = node->FirstChildElement("name")->ToElement();
@@ -765,7 +746,7 @@ public:
 		    return;
 		    }
 		}
-		}
+
 	}
 
     // Error if value was not set
@@ -983,18 +964,15 @@ public:
 	checkInstanceIndex(instanceIndex,parameterName,parameterListName,"setParameterInstanceValue(...)");
 
 	tinyxml2::XMLNode* node;
-	std::string    nodeName;
+
 
     errorFlag = true;
 
 	long count = 0;
-	for( node = parameterListElement->FirstChild();
+	for( node = parameterListElement->FirstChildElement(parameterName);
 		 node;
-		 node = node->NextSibling() )
+		 node = node->NextSiblingElement(parameterName) )
 	{
-	    nodeName = node->Value();
-	    if(nodeName.compare(parameterName) == 0)
-	    {
 		if(count == instanceIndex)
 		{
 			if(node->FirstChildElement(childParameter))
@@ -1004,7 +982,6 @@ public:
 			}
         }
         count++;
-        }
     }
 
 	errorFlag = true;
@@ -1055,7 +1032,7 @@ public:
 
     tinyxml2::XMLElement* parameterChild;
 	tinyxml2::XMLNode*    node;
-	std::string       nodeName;
+
 
     std::string instanceString(instanceName);
     std::string indexString;
@@ -1063,13 +1040,10 @@ public:
     const char*p = nullptr;
     const char** stringData = &p;
 
-	for( node = parameterListElement->FirstChild();
+	for( node = parameterListElement->FirstChildElement(parameterName);
 		 node;
-		 node = node->NextSibling() )
+		 node = node->NextSiblingElement(parameterName) )
 	{
-	    nodeName = node->Value();
-	    if(nodeName.compare(parameterName) == 0)
-	    {
 		if(node->FirstChildElement("name"))
 		{
 		    parameterChild = node->FirstChildElement("name")->ToElement();
@@ -1084,7 +1058,7 @@ public:
 		    		return;
 		    	}
 		    }
-		}}
+		}
      }
 	errorFlag = true;
 	errorMessage.append("\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
@@ -1290,19 +1264,15 @@ public:
 	tinyxml2::XMLNode*    node;
 	tinyxml2::XMLElement* parameterChild;
 
-	std::string  nodeName;
 
     const char* p = nullptr;
 	const char** stringData = &p;
 	std::string instanceString(instanceName);
 	std::string indexString;
-	for( node = parameterListElement->FirstChild();
+	for( node = parameterListElement->FirstChildElement(parameterName);
 		 node;
-		 node = node->NextSibling() )
+		 node = node->NextSiblingElement(parameterName) )
 	{
-	    nodeName = node->Value();
-	    if(nodeName.compare(parameterName) == 0)
-	    {
 		if(node->FirstChildElement("name"))
 		{
 		    parameterChild = node->FirstChildElement("name")->ToElement();
@@ -1312,7 +1282,7 @@ public:
 		    {
 		    return returnValue = getParameterValue(node->ToElement(),parameterName,  parameterListName);
 		    }
-		}}
+		}
 	}
 	errorFlag   = true;
 	errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
@@ -1357,16 +1327,12 @@ public:
     XML_dataType returnValue;
 
 	tinyxml2::XMLNode* node;
-	std::string    nodeName;
 
 	size_t count = 0;
-	for( node = parameterListElement->FirstChild();
+	for( node = parameterListElement->FirstChildElement(parameterName);
 		 node;
-		 node = node->NextSibling() )
+		 node = node->NextSiblingElement(parameterName) )
 	{
-	    nodeName = node->Value();
-	    if(nodeName.compare(parameterName) == 0)
-	    {
 		if(count == instanceIndex)
 		{
 			if(node->ToElement())
@@ -1375,7 +1341,6 @@ public:
 			}
 		}
 		count++;
-		}
 	}
 	return returnValue;
 	}
@@ -1406,17 +1371,13 @@ public:
 
 	checkInstanceIndex(instanceIndex,parameterName,parameterListName,"getParameterInstanceValue(...)");
 
-	tinyxml2::XMLNode* node;
-	std::string  nodeName;
+	tinyxml2::XMLNode* node;;
 
 	long count = 0;
-	for( node = parameterListElement->FirstChild();
+	for( node = parameterListElement->FirstChildElement(parameterName);
 		 node;
-		 node = node->NextSibling() )
+		 node = node->NextSiblingElement(parameterName) )
 	{
-        nodeName = node->Value();
-        if(nodeName.compare(parameterName) == 0)
-        {
 	    if(count == instanceIndex)
 	    {
 	    	if(node->FirstChildElement(childParameter))
@@ -1425,7 +1386,6 @@ public:
 	    	{return false;}
 	    }
 	    count++;
-	    }
 	}
     return false;
 	}
@@ -1453,20 +1413,17 @@ public:
 
     tinyxml2::XMLElement* parameterChild;
 	tinyxml2::XMLNode* node;
-	std::string    nodeName;
+
 
 	const char* p = nullptr;
 	const char** stringData = &p;
 	std::string instanceString(instanceName);
 	std::string indexString;
 
-	for( node = parameterListElement->FirstChild();
+	for( node = parameterListElement->FirstChildElement(parameterName);
 		 node;
-		 node = node->NextSibling() )
+		 node = node->NextSiblingElement(parameterName) )
 	{
-	    nodeName = node->Value();
-	    if(nodeName.compare(parameterName) == 0)
-	    {
 		if(node->FirstChildElement("name"))
 		{
 		    parameterChild = node->FirstChildElement("name")->ToElement();
@@ -1476,7 +1433,7 @@ public:
 		    {
 		    if(node->FirstChildElement(childParameter)){return true;}
 		    }
-	    }}
+	    }
 	}
     return false;
 	}
@@ -1594,17 +1551,13 @@ public:
 	checkInstanceIndex(instanceIndex,parameterName,parameterListName,"getParameterInstanceValue(...)");
 
 	tinyxml2::XMLNode* node;
-	std::string    nodeName;
 	XML_dataType returnValue;
 
 	long count = 0;
-	for( node = parameterListElement->FirstChild();
+	for( node = parameterListElement->FirstChildElement(parameterName);
 		 node;
-		 node = node->NextSibling() )
+		 node = node->NextSiblingElement(parameterName) )
 	{
-	    nodeName = node->Value();
-	    if(nodeName.compare(parameterName) == 0)
-	    {
 	    if(count == instanceIndex)
 	    {
 	    	if(node->FirstChildElement(childParameter))
@@ -1613,7 +1566,6 @@ public:
 	    	}
 	    }
 	    count++;
-	    }
 	}
 	errorFlag = true;
 	errorMessage.append("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
@@ -1706,21 +1658,16 @@ public:
 
     tinyxml2::XMLElement* parameterChild;
 	tinyxml2::XMLNode* node;
-	std::string    nodeName;
-
     std::string instanceString(instanceName);
     std::string indexString;
 
 
     const char*p = nullptr;
     const char** stringData = &p;
-	for( node = parameterListElement->FirstChild();
+	for( node = parameterListElement->FirstChildElement(parameterName);
 		 node;
-		 node = node->NextSibling() )
+		 node = node->NextSiblingElement(parameterName) )
 	{
-		nodeName = node->Value();
-	    if(nodeName.compare(parameterName) == 0)
-	    {
 		if(node->FirstChildElement("name"))
 		{
 		    parameterChild = node->FirstChildElement("name")->ToElement();
@@ -1734,7 +1681,7 @@ public:
 		    	}
 		    }
 	     }
-	     }
+
 	}
 
 
@@ -1871,17 +1818,11 @@ public:
 
 	tinyxml2::XMLNode* node = 0;
     tinyxml2::XMLNode* child = 0;
-
-    std::string nodeName;
-
 	long count = 0;
 	for( node = parameterList->FirstChildElement(parameterName);
 		 node;
-		 node = node->NextSibling() )
+		 node = node->NextSiblingElement(parameterName) )
 	{
-		nodeName = node->Value();
-		if(nodeName.compare(parameterName) == 0)
-		{
 	    if(count == instanceIndex)
 	    {
 	    	for( child = node->FirstChildElement(); child; child = child->NextSibling())
@@ -1891,7 +1832,6 @@ public:
 	    	}
         }
         count++;
-		}
     }
 	}
 
