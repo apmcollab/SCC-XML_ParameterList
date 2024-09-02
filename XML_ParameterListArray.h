@@ -346,9 +346,9 @@ public:
     if(isNull()) return 0;
 	tinyxml2::XMLHandle  docHandle(parameterArrayDocPtr->RootElement());
 	tinyxml2::XMLElement* parameterListElement = docHandle.FirstChildElement(parameterListName).ToElement();
-    checkParameterList(parameterListElement,parameterListName,"void addParameter(...)");
+    checkParameterList(parameterListElement,parameterListName,"getParameterInstanceCount(...)");
 
-	tinyxml2::XMLElement* parameterElement = parameterListElement->FirstChildElement(parameterName)->ToElement();
+	tinyxml2::XMLElement* parameterElement = parameterListElement->FirstChildElement(parameterName);
 
 	if(parameterElement == 0){return 0;}
 
@@ -1412,7 +1412,7 @@ public:
     checkParameter(parameterElement,parameterName,parameterListName,"isParameterInstanceChildValue(...)");
 
     tinyxml2::XMLElement* parameterChild;
-	tinyxml2::XMLNode* node;
+	tinyxml2::XMLElement* node;
 
 
 	const char* p = nullptr;
@@ -1426,7 +1426,7 @@ public:
 	{
 		if(node->FirstChildElement("name"))
 		{
-		    parameterChild = node->FirstChildElement("name")->ToElement();
+		    parameterChild = node->FirstChildElement("name");
 		    indexString.clear();
 		    if(parameterChild->QueryStringAttribute("value",stringData) == tinyxml2::XML_SUCCESS){indexString = stringData[0];}
 		    if(instanceString.compare(indexString) == 0)
