@@ -83,6 +83,7 @@ public:
     initialize();
     if(P.isNull()){initialize();return;}
 
+	parameterArrayDocPtr = new tinyxml2::XMLDocument();
 	P.parameterArrayDocPtr->DeepCopy(parameterArrayDocPtr);
 	}
 
@@ -426,7 +427,6 @@ public:
     {
     abortIfNull();
     tinyxml2::XMLHandle  docHandle(parameterArrayDocPtr->RootElement());
-
     tinyxml2::XMLElement* parameterListElement = docHandle.FirstChildElement(parameterListName).ToElement();
     checkParameterList(parameterListElement,parameterListName,"void addParameter(...)");
 	tinyxml2::XMLElement* parameterElement     = parameterArrayDocPtr->NewElement(parameterName);
