@@ -1757,7 +1757,9 @@ public:
 	for( node = parameterList; node; node = node->NextSibling())
 	{
 		if(not node->ToComment())
-        {paramListNames.push_back(node->ToElement()->Name());}
+		{
+        if(node->ToElement()->Name()){paramListNames.push_back(node->ToElement()->Name());}
+		}
 	}
 	}
 
@@ -1767,7 +1769,7 @@ public:
 	getParameterNames(parameterListName.c_str(),paramNames);
 	}
 
-/// Returns an array of parameter names of the speceified parameter lists
+/// Returns an array of parameter names of the specified parameter lists
     void getParameterNames(const char* parameterListName, std::vector < std::string >& paramNames) const
 	{
 	paramNames.clear();
@@ -1778,10 +1780,15 @@ public:
 	tinyxml2::XMLHandle   docHandle(parameterArrayDocPtr->RootElement());
 	tinyxml2::XMLNode* parameterList = docHandle.FirstChildElement(parameterListName).ToElement();
 	tinyxml2::XMLNode* node = 0;
-    for( node = parameterList->FirstChildElement(); node; node = node->NextSibling())
+    for( node = parameterList->FirstChildElement(); node; node = node->NextSiblingElement())
 	{
 		if(not node->ToComment())
-        {paramNames.push_back(node->ToElement()->Name());}
+        {
+			if(node->ToElement()->Name())
+			{
+			paramNames.push_back(node->ToElement()->Name());
+			}
+        }
 	}
 	}
 
