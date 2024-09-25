@@ -965,9 +965,6 @@ public:
 
 	tinyxml2::XMLNode* node;
 
-
-    errorFlag = true;
-
 	long count = 0;
 	for( node = parameterListElement->FirstChildElement(parameterName);
 		 node;
@@ -2246,6 +2243,7 @@ public:
 		errorMessage.append("Parameter      : ");
 		errorMessage.append(parameterName);
 		errorMessage.append("\n");
+		if(abortOnErrorFlag){checkErrorAndAbort();}
 		return XML_dataType();
 		}
 		//
@@ -2325,6 +2323,7 @@ public:
 	errorMessage.append("Parameter      : ");
 	errorMessage.append(parameterName);
 	errorMessage.append("\n");
+	if(abortOnErrorFlag){checkErrorAndAbort();}
 
 	return XML_dataType();
 	}
@@ -2430,6 +2429,7 @@ public:
 	errorMessage.append("Parameter      : ");
 	errorMessage.append(parameterName);
 	errorMessage.append("\n");
+	if(abortOnErrorFlag){checkErrorAndAbort();}
 	return stringTemp;
 	}
 
