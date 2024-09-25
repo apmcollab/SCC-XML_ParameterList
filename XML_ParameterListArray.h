@@ -1750,12 +1750,15 @@ public:
 	if(parameterArrayDocPtr == 0) return;
 	tinyxml2::XMLHandle   docHandle(parameterArrayDocPtr->RootElement());
 	tinyxml2::XMLElement* parameterList = docHandle.FirstChildElement().ToElement();
+
+    if(not parameterList){return;}
+
 	tinyxml2::XMLNode* node = 0;
 	for( node = parameterList; node; node = node->NextSibling())
 	{
 		if(not node->ToComment())
 		{
-        if(node->ToElement()->Name()){paramListNames.push_back(node->ToElement()->Name());}
+        if(node->ToElement()){paramListNames.push_back(node->ToElement()->Name());}
 		}
 	}
 	}
@@ -1781,7 +1784,7 @@ public:
 	{
 		if(not node->ToComment())
         {
-			if(node->ToElement()->Name())
+			if(node->ToElement())
 			{
 			paramNames.push_back(node->ToElement()->Name());
 			}
