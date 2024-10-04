@@ -13,6 +13,7 @@
 #include <string>
 #include <map>
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <algorithm>
 #include <vector>
@@ -172,6 +173,31 @@ public:
 	void saveFile(const std::string& fileName) const
 	{
 		parameterArrayDocPtr->SaveFile(fileName.c_str());
+	}
+	
+	
+/// Saves the XML file to specified file in binary format 
+
+	void saveFileBinary(const std::string& fileName)
+	{
+	tinyxml2::XMLPrinter printer;
+	parameterArrayDocPtr->Print( &printer );
+	size_t dataSize = printer.CStrSize();
+		
+	std::ofstream outfile;
+  	outfile.open(fileName, std::ios::binary | std::ios::out);
+  	outfile.write(printer.CStr(), dataSize); 
+  	outfile.close();
+	}
+	
+	void initializeFromBinaryFile(const std::string& fileName)
+	{
+	std::ifstream infile;
+  	infile.open(fileName, std::ios::binary | std::ios::in);
+	std::string sInput(std::istreambuf_iterator<char>(infile), {});
+	infile.close();
+	
+	initializeFromString(sInput);
 	}
 
 /**	Creates a parameter list array in memory with a root node element with name listArrayName.
