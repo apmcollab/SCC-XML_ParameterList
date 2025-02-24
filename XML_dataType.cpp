@@ -21,11 +21,32 @@ of the basic data types available in C++. The data types supported are
 bool, int, long, float, double and strings. The class is a
 container class which holds the value of the data and it's type.
 The constructors and conversions associated with this class have been
-implemented so that functions which return a XML_dataType object can
+implemented so that functions that return an XML_dataType object can
 "communicate" with variables of the standard data types. This class is
 purely a mechanism for implementing functions with identical signature
 but different return types. Algebraic operations (other than assignment)
 are not implemented for the objects of this class.
+*/
+
+/*
+#############################################################################
+#
+# Copyright  2012- Chris Anderson
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the Lesser GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# For a copy of the GNU General Public License see
+# <http://www.gnu.org/licenses/>.
+#
+#############################################################################
 */
 XML_dataType::XML_dataType(): s()
 {

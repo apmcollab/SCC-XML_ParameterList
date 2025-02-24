@@ -2,19 +2,19 @@
 
 XML_ParameterListArray class instances are collections of parameter lists (lists of parameters and their values) that are expressed in XML syntax. The specific XML structure of an XML_ParameterListArray and the member functions for managing these lists, were chosen by their utility for specifying and working with input files for programs performing scientific computation.
 
-This source distribution includes the source for a version of TinyXML-1 with a small change identified in the TinyXML_Changes file.  This code has not been tested against the newer version of TinyXML, TinyXML-2
+This source distribution includes the source for a version of TinyXML-2
 
 ### Prerequisites
 
-C++ 11
+C++ 17
 
 ### Versioning
 
-Release : 1.0.5
+Release : 2.0.0
 
 ### Date
 
-July 1, 2021
+Feb. 24, 2025
 
 ### Authors
 
@@ -26,7 +26,7 @@ GPLv3  For a copy of the GNU General Public License see <http://www.gnu.org/lice
 
 ### Acknowledgements
 
-The creator of tinyxml used to provide the XML parsing.
+The creators of tinyxml2 used to provide the XML parsing.
 
 
 
