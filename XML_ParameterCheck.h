@@ -233,6 +233,85 @@ bool checkParameterError(const std::string& routineName, const XML_ParameterList
     return errorFlag;
 }
 
+// Returns true if both child parameters do not exist
+
+bool checkEitherParameterError(const std::string& routineName, const XML_ParameterListArray& paramList,
+		            const std::string& paramChildNameA,
+				    const std::string& paramChildNameB,
+		            const std::string& paramName,
+				    const std::string& listName,
+				     std::string& errMsg)
+{
+    bool abortOnErrorFlag = paramList.getAbortOnErrorFlag();
+	paramList.clearAbortOnErrorFlag();
+
+	bool errorFlag = false;
+
+
+	if(not paramList.isParameterList(listName))
+	{
+		errMsg.append("\nXXXXX ");
+	    errMsg.append(routineName  + " Parameter Error \n");
+		errMsg.append("Parameter list missing : ");
+		errMsg.append(listName);
+		errMsg.append("\n");
+		errorFlag = true;
+	}
+
+
+	if((not errorFlag)&&(not paramList.isParameter(paramName,listName)))
+	{
+		errMsg.append("\nXXXXX ");
+	    errMsg.append(routineName  + " Parameter Error \n");
+		errMsg.append("Parameter missing : ");
+		errMsg.append(paramName);
+	    errMsg.append("\n");
+		errMsg.append("Parameter list    : ");
+		errMsg.append(listName);
+		errMsg.append("\n");
+		errorFlag = true;
+	}
+
+	// Checks for first (0th) instance of child parameter with either name
+
+
+    if(
+    (not errorFlag)&&
+    ((not paramList.isParameterInstanceChildValue(0,paramChildNameA,paramName,listName)) &&
+	 (not paramList.isParameterInstanceChildValue(0,paramChildNameB,paramName,listName))
+    )
+	)
+	{
+		errMsg.append("\nXXXXX ");
+	    errMsg.append(routineName + " Parameter Error \n");
+	    errMsg.append("Parameter child missing \n");
+	    errMsg.append("Required child parameter  \n");
+		errMsg.append("Parameter child : ");
+		errMsg.append(paramChildNameA);
+	    errMsg.append("\n");
+	    errMsg.append("== or == \n");
+	    errMsg.append("Parameter child : ");
+		errMsg.append(paramChildNameB);
+	    errMsg.append("\n");
+		errMsg.append("Parameter          : ");
+	    errMsg.append(paramName);
+	    errMsg.append("\n");
+	    errMsg.append("Parameter instance : 1");
+	    errMsg.append("\n");
+		errMsg.append("Parameter list     : ");
+		errMsg.append(listName);
+		errMsg.append("\n");
+		errorFlag = true;
+	}
+
+    if(abortOnErrorFlag)
+	{
+	paramList.setAbortOnErrorFlag();
+	}
+
+    return errorFlag;
+}
+
 
 };
 
