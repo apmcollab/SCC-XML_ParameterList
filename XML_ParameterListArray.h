@@ -1848,7 +1848,7 @@ public:
 
 /// Returns the names of the child parameters of the first instance of the specified parameter
 	void getParameterChildNames(const char* parameterName, const char* parameterListName,
-	std::vector < std::string >& paramChildNames)
+	std::vector < std::string >& paramChildNames) const
 	{
 	getParameterChildNames(0,parameterName,parameterListName,paramChildNames);
 	}
